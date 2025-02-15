@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "agent:start": "ts-node --project tsconfig.server.json src/server/start.ts"
+    "agent:start": "ts-node --project tsconfig.server.json src/server/start.ts",
+    "portfolio:start": "ts-node --project tsconfig.server.json src/app/portfolio-client.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.11",

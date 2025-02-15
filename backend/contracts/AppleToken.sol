@@ -37,44 +37,32 @@ contract AppleToken is ERC20, Ownable(msg.sender) {
         }
     }
 
-    function buyToken(bytes[] calldata priceUpdate) external payable {
-        require(msg.value > 0, "Send ETH to buy tokens");
-
-        uint256 fee = pyth.getUpdateFee(priceUpdate);
-        require(msg.value > fee, "Insufficient ETH to cover fee");
-
-        pyth.updatePriceFeeds{value: fee}(priceUpdate);
-
+    // Internal function to get latest prices
+    function getLatestPrices() internal view returns (uint256) {
+        // Get latest prices, allowing up to 60 seconds old prices
         PythStructs.Price memory applePrice = pyth.getPriceNoOlderThan(APPLE_FEED_ID, 60);
         PythStructs.Price memory ethUsdPrice = pyth.getPriceNoOlderThan(ETH_USD_FEED_ID, 60);
 
         uint256 appleUsdPrice = normalizePrice(applePrice);
         uint256 ethUsd = normalizePrice(ethUsdPrice);
 
-        uint256 applePriceInEth = (appleUsdPrice * 1e18) / ethUsd;
+        return (appleUsdPrice * 1e18) / ethUsd;
+    }
 
-        uint256 ethForTrade = msg.value - fee;
-        uint256 tokensToMint = (ethForTrade * 1e18) / applePriceInEth;
+    function buyToken() external payable {
+        require(msg.value > 0, "Send ETH to buy tokens");
+
+        uint256 applePriceInEth = getLatestPrices();
+        uint256 tokensToMint = (msg.value * 1e18) / applePriceInEth;
 
         _mint(msg.sender, tokensToMint);
     }
 
-    function sellToken(uint256 tokenAmount, bytes[] calldata priceUpdate) external payable {
+    function sellToken(uint256 tokenAmount) external {
         require(tokenAmount > 0, "Token amount must be > 0");
         require(balanceOf(msg.sender) >= tokenAmount, "Insufficient token balance");
 
-        uint256 fee = pyth.getUpdateFee(priceUpdate);
-        require(msg.value >= fee, "Insufficient ETH sent for fee");
-
-        pyth.updatePriceFeeds{value: fee}(priceUpdate);
-
-        PythStructs.Price memory applePrice = pyth.getPriceNoOlderThan(APPLE_FEED_ID, 60);
-        PythStructs.Price memory ethUsdPrice = pyth.getPriceNoOlderThan(ETH_USD_FEED_ID, 60);
-
-        uint256 appleUsdPrice = normalizePrice(applePrice);
-        uint256 ethUsd = normalizePrice(ethUsdPrice);
-
-        uint256 applePriceInEth = (appleUsdPrice * 1e18) / ethUsd;
+        uint256 applePriceInEth = getLatestPrices();
         uint256 ethToReturn = (tokenAmount * applePriceInEth) / 1e18;
         
         require(address(this).balance >= ethToReturn, "Insufficient liquidity");

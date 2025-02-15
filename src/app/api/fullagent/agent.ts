@@ -9,6 +9,9 @@ import {
   cdpApiActionProvider,
   cdpWalletActionProvider,
   pythActionProvider,
+  morphoActionProvider,
+  erc721ActionProvider,
+  EvmWalletProvider
 } from "@coinbase/agentkit";
 
 import { getLangChainTools } from "@coinbase/agentkit-langchain";
@@ -19,8 +22,22 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
+import { CreateAction } from "@coinbase/agentkit";
+import { z } from "zod";
+import { Hex } from "viem";
 
 dotenv.config();
+
+// Add this after the imports and before validateEnvironment()
+const AAPL_USD_PRICE_FEED = "0x49f6b65cb1de6b10eaf75e7c03ca029c306d0357e91b5311b175084a5ad55688";
+const MSFT_USD_PRICE_FEED = "0xd0ca23c1cc005e004ccf1db5bf76aeb6a49218f43dac3d4b275e92de12ded4d1";
+const NVIDIA_USD_PRICE_FEED = "0xb1073854ed24cbc755dc527418f52b7d271f6cc967bbf8d8129112b18860a593";
+const VOO_USD_PRICE_FEED = "0x236b30dd09a9c00dfeec156c7b1efd646c0f01825a1758e3e4a0679e3bdff179";
+const ABNB_USD_PRICE_FEED = "0xccab508da0999d36e1ac429391d67b3ac5abf1900978ea1a56dab6b1b932168e";
+const AAPL_TOKEN = "0x55fcbD7fdab0e36C981D8a429f07649D1C19112A" as Hex;
+const MSFT_TOKEN = "0x97446cA663df9f015Ad0dA9260164b56A971b11E" as Hex;
+const VOO_TOKEN = "0x8d7d51c2fF7ad78e8c8D16e797c28f0Bf2eB5AFC" as Hex;
+const NVIDIA_TOKEN = "0xc38cC5B373214b5D8B05b6ed97FEC73E3752aA6B" as Hex;
 
 /**
  * Validates that required environment variables are set
@@ -125,6 +142,8 @@ export async function initializeAgent() {
             "\n"
           ),
         }),
+        morphoActionProvider(),
+        erc721ActionProvider(),
       ],
     });
 
@@ -145,7 +164,34 @@ export async function initializeAgent() {
           You are a helpful agent that can interact onchain using the Coinbase Developer Platform AgentKit. You are 
           empowered to interact onchain using your tools. If you ever need funds, you can request them from the 
           faucet if you are on network ID 'base-sepolia'. If not, you can provide your wallet details and request 
-          funds from the user. Before executing your first action, get the wallet details to see what network 
+          funds from the user.
+
+          You can fetch the current AAPL/USD price using the Pyth price feed:
+          - Use getPythPrice action with priceId: "${AAPL_USD_PRICE_FEED}"
+
+          You can fetch the current MSFT/USD price using the Pyth price feed:
+          - Use getPythPrice action with priceId: "${MSFT_USD_PRICE_FEED}"
+
+          You can fetch the current NVIDIA/USD price using the Pyth price feed:
+          - Use getPythPrice action with priceId: "${NVIDIA_USD_PRICE_FEED}"
+
+          You can fetch the current VOO/USD price using the Pyth price feed:
+          - Use getPythPrice action with priceId: "${VOO_USD_PRICE_FEED}"
+
+          You can fetch the current ABNB/USD price using the Pyth price feed:
+          - Use getPythPrice action with priceId: "${ABNB_USD_PRICE_FEED}"
+          
+          - Include confidence intervals when reporting prices
+          - Retry up to 3 times if the price feed fails
+          
+          You can get the balance of every ERC20 token currently held in the wallet by using the getEveryErc20Balance tool.
+          The following ERC20 tokens and their respective addresses are available:
+          - AAPL Token: ${AAPL_TOKEN}
+          - MSFT Token: ${MSFT_TOKEN}
+          - VOO Token: ${VOO_TOKEN}
+          - NVIDIA Token: ${NVIDIA_TOKEN}
+          
+          Before executing your first action, get the wallet details to see what network 
           you're on. If there is a 5XX (internal) HTTP error code, ask the user to try again later. If someone 
           asks you to do something you can't do with your currently available tools, you must say so, and 
           encourage them to implement it themselves using the CDP SDK + Agentkit, recommend they go to 
@@ -162,42 +208,6 @@ export async function initializeAgent() {
   } catch (error) {
     console.error("Failed to initialize agent:", error);
     throw error;
-  }
-}
-
-/**
- * Run the agent autonomously with specified intervals
- */
-async function runAutonomousMode(agent: any, config: any, interval = 10) {
-  console.log("Starting autonomous mode...");
-
-  while (true) {
-    try {
-      const thought =
-        "Be creative and do something interesting on the blockchain. " +
-        "Choose an action or set of actions and execute it that highlights your abilities.";
-
-      const stream = await agent.stream(
-        { messages: [new HumanMessage(thought)] },
-        config
-      );
-
-      for await (const chunk of stream) {
-        if ("agent" in chunk) {
-          console.log(chunk.agent.messages[0].content);
-        } else if ("tools" in chunk) {
-          console.log(chunk.tools.messages[0].content);
-        }
-        console.log("-------------------");
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, interval * 1000));
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error:", error.message);
-      }
-      process.exit(1);
-    }
   }
 }
 
@@ -248,50 +258,12 @@ async function runChatMode(agent: any, config: any) {
 }
 
 /**
- * Choose whether to run in autonomous or chat mode
- */
-async function chooseMode(): Promise<"chat" | "auto"> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const question = (prompt: string): Promise<string> =>
-    new Promise((resolve) => rl.question(prompt, resolve));
-
-  while (true) {
-    console.log("\nAvailable modes:");
-    console.log("1. chat    - Interactive chat mode");
-    console.log("2. auto    - Autonomous action mode");
-
-    const choice = (await question("\nChoose a mode (enter number or name): "))
-      .toLowerCase()
-      .trim();
-
-    if (choice === "1" || choice === "chat") {
-      rl.close();
-      return "chat";
-    } else if (choice === "2" || choice === "auto") {
-      rl.close();
-      return "auto";
-    }
-    console.log("Invalid choice. Please try again.");
-  }
-}
-
-/**
  * Main entry point
  */
 async function main() {
   try {
     const { agent, config } = await initializeAgent();
-    const mode = await chooseMode();
-
-    if (mode === "chat") {
-      await runChatMode(agent, config);
-    } else {
-      await runAutonomousMode(agent, config);
-    }
+    await runChatMode(agent, config);
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error:", error.message);

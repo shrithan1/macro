@@ -7,6 +7,20 @@ import { abi } from "./constants";
 import { encodeFunctionData, Hex } from "viem";
 import { EvmWalletProvider } from "../../wallet-providers";
 
+// Important token addresses
+const AAPL_TOKEN = "0x55fcbD7fdab0e36C981D8a429f07649D1C19112A" as Hex;
+const MSFT_TOKEN = "0x97446cA663df9f015Ad0dA9260164b56A971b11E" as Hex;
+const UNI_TOKEN = "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984" as Hex;
+const DAI_TOKEN = "0x6B175474E89094C44Da98b954EedeAC495271d0F" as Hex;
+
+// Token address to symbol mapping for better error messages
+const TOKEN_SYMBOLS: Record<Hex, string> = {
+  [AAPL_TOKEN]: "AAPL",
+  [MSFT_TOKEN]: "MSFT",
+  [UNI_TOKEN]: "UNI",
+  [DAI_TOKEN]: "DAI",
+};
+
 /**
  * ERC20ActionProvider is an action provider for ERC20 tokens.
  */
@@ -47,6 +61,82 @@ export class ERC20ActionProvider extends ActionProvider<EvmWalletProvider> {
       return `Balance of ${args.contractAddress} is ${balance}`;
     } catch (error) {
       return `Error getting balance: ${error}`;
+    }
+  }
+
+  @CreateAction({
+    name: "get_every_erc20_balance",
+    description: `
+    This tool will discover and get the balance of every ERC20 token currently held in the wallet by querying historical transactions.
+    `,
+    schema: z.object({}),
+  })
+  async getEveryErc20Balance(
+    walletProvider: EvmWalletProvider,
+  ): Promise<string> {
+    try {
+      // Get the wallet's address
+      const walletAddress = walletProvider.getAddress();
+      
+      // Get ETH balance first
+      const ethBalance = await walletProvider.getBalance();
+      
+      // List of important ERC20 tokens to check
+      const tokenList = [
+        AAPL_TOKEN,
+        MSFT_TOKEN,
+        UNI_TOKEN,
+        DAI_TOKEN,
+      ];
+
+      const balances = await Promise.all(
+        tokenList.map(async (tokenAddress) => {
+          try {
+            // First get the token symbol
+            const symbol = TOKEN_SYMBOLS[tokenAddress] || await walletProvider.readContract({
+              address: tokenAddress,
+              abi,
+              functionName: "symbol",
+            }) as string;
+
+            // Then get the balance
+            const balance = await walletProvider.readContract({
+              address: tokenAddress,
+              abi,
+              functionName: "balanceOf",
+              args: [walletAddress],
+            }) as bigint;
+
+            // Only return tokens with non-zero balance
+            if (balance > BigInt(0)) {
+              return `${symbol}: ${balance.toString()}`;
+            }
+            return null;
+          } catch (error) {
+            console.error(`Error reading token at ${tokenAddress} (${TOKEN_SYMBOLS[tokenAddress] || 'Unknown'}): ${error}`);
+            return null;
+          }
+        })
+      );
+
+      // Filter out null values and tokens with zero balance
+      const nonZeroBalances = balances.filter((balance): balance is string => balance !== null);
+      
+      // Start with ETH balance if it's non-zero
+      const allBalances: string[] = [];
+      if (ethBalance > BigInt(0)) {
+        allBalances.push(`ETH: ${ethBalance.toString()}`);
+      }
+      // Add ERC20 balances
+      allBalances.push(...nonZeroBalances);
+
+      if (allBalances.length === 0) {
+        return `No non-zero token balances found for ${walletAddress}`;
+      }
+
+      return `Token Balances for ${walletAddress}:\n${allBalances.join('\n')}`;
+    } catch (error) {
+      return `Error getting balances: ${error}`;
     }
   }
 

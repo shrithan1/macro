@@ -34,19 +34,19 @@ module.exports = {
     "base-mainnet": {
      url: 'https://mainnet.base.org',
      accounts: [PRIVATE_KEY],
-     gasPrice: 1000000000,
+     gasPrice: 1000,
    },
    // for Base Sepolia testnet
    "base-sepolia": {
      url: "https://sepolia.base.org",
      accounts: [PRIVATE_KEY],
-     gasPrice: 1000000000,
+     gasPrice: 1000,
    },
    // for local dev environment
    "base-local": {
      url: "http://localhost:8545",
      accounts: [PRIVATE_KEY],
-     gasPrice: 1000000000,
+     gasPrice: 1000,
    },
  },
  defaultNetwork: "base-sepolia",

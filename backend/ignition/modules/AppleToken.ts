@@ -1,10 +1,10 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-// Verified Sepolia Pyth contract address with correct checksum
-const SEPOLIA_PYTH_CONTRACT = "0x2880ec3b069e5e311299a0d7be51ee5eda0e0a5b";
+// Pyth contract address on Base Sepolia
+const SEPOLIA_PYTH_CONTRACT = "0xA2aa501b19aff244D90cc15a4Cf739D2725B5729";
 const INITIAL_ETH_POOL = BigInt("100000000000000000"); // 0.1 ETH in wei
 
-const AppleTokenModule = buildModule("AppleTokenModule", (m) => {
+const AppleTokenModuleV2 = buildModule("AppleTokenModuleV2", (m) => {
   const appleToken = m.contract("AppleToken", [SEPOLIA_PYTH_CONTRACT], {
     value: INITIAL_ETH_POOL,
   });
@@ -12,4 +12,4 @@ const AppleTokenModule = buildModule("AppleTokenModule", (m) => {
   return { appleToken };
 });
 
-export default AppleTokenModule;
+export default AppleTokenModuleV2;

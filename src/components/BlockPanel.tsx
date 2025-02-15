@@ -1,11 +1,37 @@
 "use client";
 "use strict";
-// const demoPrice = await fetch(
-//   "https:/www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=demo"
-// );
-// const assetPrice = demoPrice["Global Quote"]["05. price"];
-// const url =
-//   "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=IBM&interval=5min&apikey=0U1V6CTCAP296DBD";
+
+async function fetchStockPrice(symbol: string) {
+  try {
+    const response = await fetch(
+      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=BW94SPC39ZMD606D`
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log(data);
+    const assetPrice = data["Global Quote"]?.["05. price"];
+
+    if (assetPrice) {
+      console.log(`IBM Stock Price: $${assetPrice}`);
+      return assetPrice;
+    } else {
+      console.error("Price not found in response");
+      return null;
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return null;
+  }
+}
+
+// Usage
+const msftPrice = fetchStockPrice("MSFT");
+const aaplPrice = fetchStockPrice("AAPL");
+const nvdaPrice = fetchStockPrice("NVDA");
 
 import Image from "next/image";
 import React, { useState } from "react";
@@ -36,21 +62,21 @@ const categories: Category[] = [
         id: "1",
         logo: "/block_logos/MSFT.png",
         label: "MSFT",
-        price: "100",
+        price: msftPrice,
         category: "Stocks",
       },
       {
         id: "2",
         logo: "/block_logos/apple.png",
         label: "AAPL",
-        price: "150",
+        price: aaplPrice,
         category: "Stocks",
       },
       {
         id: "3",
         logo: "/block_logos/nvidia.png",
         label: "NVDA",
-        price: "300",
+        price: nvdaPrice,
         category: "Stocks",
       },
     ],
@@ -63,7 +89,7 @@ const categories: Category[] = [
         id: "4",
         logo: "/block_logos/voo1.png",
         label: "VOO",
-        price: "400",
+        price: "100",
         category: "S&P",
       },
     ],
@@ -99,11 +125,12 @@ const categories: Category[] = [
 
 export function BlockPanel({ onAddBlock }: BlockPanelProps) {
   const [loading, setLoading] = useState(true);
-
+  // const blocks: Block[] = [
+  //   {
+  //     id: "1",
   return (
     <div className="p-4 bg-white">
       <h3 className="mb-4 text-xl font-semibold">Available Assets</h3>
-      {loading && <div className="loader">Loading...</div>}
       {categories.map((category) => (
         <div key={category.name} className="space-y-2">
           <div className="flex items-center mb-2 mt-2">

@@ -3,6 +3,27 @@ import React, { useState, useEffect, useRef } from "react";
 
 const AGENT_SERVER_URL = process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
 
+// Add these types at the top of the file
+interface Asset {
+  symbol: string;
+  weight: number;
+  price: number;
+}
+
+interface PortfolioData {
+  timestamp: number;
+  portfolio: {
+    assets: Asset[];
+    totalValue: number;
+    metadata: {
+      rebalanceRequired: boolean;
+      lastUpdated: string;
+      portfolioRisk: string;
+      currentTime: number;
+    };
+  };
+}
+
 function DeployAgentButton() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
@@ -87,20 +108,12 @@ function DeployAgentButton() {
   const sendPortfolioMessage = async () => {
     // Get the saved portfolio data from localStorage
     const savedPortfolioData = localStorage.getItem('portfolioData');
-    let predefinedMessage = "if MSFT is more than 400$, transfer burn 100 AAPL tokens and buy 100 MSFT tokens";
-    
-    // If we have saved portfolio data, create a more specific message
-    if (savedPortfolioData) {
-      const portfolioData = JSON.parse(savedPortfolioData);
-      const msftAsset = portfolioData.portfolio.assets.find((asset: any) => asset.symbol === "PMSFT");
-      const appleAsset = portfolioData.portfolio.assets.find((asset: any) => asset.symbol === "PAPPL");
-      
-      if (msftAsset && appleAsset) {
-        predefinedMessage = `if MSFT is more than ${msftAsset.price}$, transfer burn ${appleAsset.weight} AAPL tokens and buy ${msftAsset.weight} MSFT tokens`;
-      }
+    if (!savedPortfolioData) {
+      console.error('No portfolio data found in localStorage');
+      return;
     }
 
-    setMessages((prev) => [...prev, `You: ${predefinedMessage}`]);
+    setMessages((prev) => [...prev, `You: ${savedPortfolioData}`]);
     setLoading(true);
 
     try {
@@ -110,8 +123,8 @@ function DeployAgentButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: predefinedMessage,
-          portfolioData: savedPortfolioData ? JSON.parse(savedPortfolioData) : null
+          message: savedPortfolioData,
+          portfolioData: JSON.parse(savedPortfolioData)
         }),
       });
 

@@ -3,6 +3,7 @@ import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Navbar } from '@/components/navbar'
+import React from 'react';
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -23,6 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${interTight.variable}`} suppressHydrationWarning>
+      <head>
+        <title>My App</title>
+      </head>
       <body className={`font-inter-tight antialiased min-h-screen bg-background`}>
         <Providers>
           <Navbar />

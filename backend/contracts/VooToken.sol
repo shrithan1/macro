@@ -12,7 +12,7 @@ contract VooToken is ERC20, Ownable(msg.sender) {
     bytes32 public constant VOO_FEED_ID = 0x49f6b65cb1de6b10eaf75e7c03ca029c306d0357e91b5311b175084a5ad55688;
     bytes32 public constant ETH_USD_FEED_ID = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
 
-    constructor(address pythContract) ERC20("VooToken", "VOO") payable {
+    constructor(address pythContract) ERC20("VooToken", "PVOO") payable {
         require(msg.value > 0, "Must initialize with ETH pool");
         pyth = IPyth(pythContract);
     }
@@ -90,4 +90,8 @@ contract VooToken is ERC20, Ownable(msg.sender) {
     }
 
     receive() external payable {}
+
+    function testNormalizePrice(PythStructs.Price memory p) external pure returns (uint256) {
+        return normalizePrice(p);
+    }
 } 

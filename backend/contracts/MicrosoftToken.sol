@@ -12,7 +12,7 @@ contract MicrosoftToken is ERC20, Ownable(msg.sender) {
     bytes32 public constant MICROSOFT_FEED_ID = 0xd0ca23c1cc005e004ccf1db5bf76aeb6a49218f43dac3d4b275e92de12ded4d1;
     bytes32 public constant ETH_USD_FEED_ID = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
 
-    constructor(address pythContract) ERC20("MicrosoftToken", "MSFT") payable {
+    constructor(address pythContract) ERC20("MicrosoftToken", "PMSFT") payable {
         require(msg.value > 0, "Must initialize with ETH pool");
         pyth = IPyth(pythContract);
     }
@@ -90,4 +90,9 @@ contract MicrosoftToken is ERC20, Ownable(msg.sender) {
     }
 
     receive() external payable {}
+
+    // Add this function for testing
+    function testNormalizePrice(PythStructs.Price memory p) external pure returns (uint256) {
+        return normalizePrice(p);
+    }
 } 

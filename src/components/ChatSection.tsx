@@ -14,10 +14,10 @@ export const ChatSection = () => {
     };
   
     return (
-      <div className="flex flex-col justify-between bg-background border-l border-border">
+      <div className="flex flex-col h-full bg-background border-l border-border overflow-y-hidden">
         
         {/* Chat messages area */}
-        <div className="flex-1 p-4 overflow-auto">
+        <div className="flex-1 p-4 overflow-y-auto">
           <div className="text-muted-foreground text-sm">
             {/* Placeholder streaming text */}
             <p>Assistant: I'll help you create a DeFi strategy. What would you like to achieve?</p>
@@ -26,8 +26,8 @@ export const ChatSection = () => {
           </div>
         </div>
         
-        {/* Chat input */}
-        <div className="border-t border-border p-4">
+        {/* Chat input - sticky bottom */}
+        <div className="sticky bottom-0 border-t border-border p-4 bg-background">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input
               value={input}

@@ -59,7 +59,7 @@ export default function Home() {
     }, [setNodes]);
 
     return (
-        <div className="flex w-full h-screen overflow-hidden">
+        <div className="flex w-full h-screen pt-14">
             {/* Left Sidebar */}
             <div className="w-[60px] border-r border-border">
                 <ScrollArea className="h-full">

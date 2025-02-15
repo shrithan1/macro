@@ -25,10 +25,10 @@ export function Navbar() {
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
-              href="/create"
+              href="/create-flow"
               className="transition-colors hover:text-foreground/80 text-foreground"
             >
-              Create
+              Create Flow
             </Link>
           </nav>
         </div>

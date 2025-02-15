@@ -68,7 +68,7 @@ import ReactFlow, {
   BaseEdge,
   NodeProps,
 } from '@xyflow/react'
-// import 'reactflow/dist/style.css'
+import 'reactflow/dist/style.css'
 import { toast } from 'sonner'
 // import CustomBlockModal from '@/app/CustomBlockModal'
 import SwapNode from '@/app/SwapNode'

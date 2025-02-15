@@ -59,45 +59,10 @@ export default function Home() {
 
     const handleSendJson = async () => {
         // Generate mock portfolio data
-        const mockData = {
-            timestamp: Date.now(),
-            portfolio: {
-                assets: [
-                    {
-                        symbol: "PAPPL",
-                        weight: 20.5,
-                        price: 175.32
-                    },
-                    {
-                        symbol: "PVOO",
-                        weight: 15.25,
-                        price: 95.45
-                    },
-                    {
-                        symbol: "PMSFT",
-                        weight: 25.75,
-                        price: 350.20
-                    },
-                    {
-                        symbol: "wBTC",
-                        weight: 23.25,
-                        price: 45000.00
-                    },
-                    {
-                        symbol: "ETH",
-                        weight: 15.25,
-                        price: 2250.75
-                    }
-                ],
-                totalValue: 125000,
-                metadata: {
-                    rebalanceRequired: true,
-                    lastUpdated: new Date().toISOString(),
-                    portfolioRisk: "moderate",
-                    currentTime: Date.now()
-                }
-            }
-        };
+        const mockData = "if apple stock price is less than 200$, say hi";
+
+        // Save to localStorage for coinbase-test page
+        localStorage.setItem('portfolioData', JSON.stringify(mockData));
 
         try {
             const response = await fetch('/api/create-task', {

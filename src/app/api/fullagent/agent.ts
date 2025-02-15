@@ -256,7 +256,7 @@ async function runChatMode(agent: any, config: any) {
                 currentTime: Date.now()
               }
             };
-            await createNewTask(JSON.stringify(taskData));
+              await createNewTask(JSON.stringify(taskData));
           } catch (error) {
             console.error("Failed to create new task:", error);
           }
@@ -273,7 +273,6 @@ async function runChatMode(agent: any, config: any) {
                 currentTime: Date.now()
               }
             };
-            await createNewTask(JSON.stringify(taskData));
           } catch (error) {
             console.error("Failed to create new task:", error);
           }

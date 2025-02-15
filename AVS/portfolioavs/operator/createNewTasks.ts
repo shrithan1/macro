@@ -12,6 +12,11 @@ let chainId = 31337;
 const avsDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../contracts/deployments/hello-world/${chainId}.json`), 'utf8'));
 const helloWorldServiceManagerAddress = avsDeploymentData.addresses.helloWorldServiceManager;
 const helloWorldServiceManagerABI = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../abis/HelloWorldServiceManager.json'), 'utf8'));
+
+// Initialize wallet from private key
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "http://localhost:8545");
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || "", provider);
+
 // Initialize contract objects from ABIs
 const helloWorldServiceManager = new ethers.Contract(helloWorldServiceManagerAddress, helloWorldServiceManagerABI, wallet);
 
@@ -81,8 +86,18 @@ function generateRandomTaskData(): string {
 
 export async function createNewTask(taskData: string) {
     try {
-        const { createTask } = await import('../../src/server/createTask');
-        return await createTask(taskData);
+        console.log('Creating new task...');
+        const tx = await helloWorldServiceManager.createNewTask(taskData);
+        console.log('Transaction sent:', tx.hash);
+        
+        const receipt = await tx.wait();
+        console.log(`Transaction successful with hash: ${receipt.hash}`);
+        
+        return {
+            transactionHash: receipt.hash,
+            blockNumber: receipt.blockNumber,
+            taskData: JSON.parse(taskData)
+        };
     } catch (error) {
         console.error('Error sending transaction:', error);
         throw error;

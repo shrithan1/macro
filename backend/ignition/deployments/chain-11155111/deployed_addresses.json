@@ -1,5 +1,6 @@
 {
   "AppleTokenModule#AppleToken": "0xFD7E96aeFc71A37242f6cF82F5d7b586007E3d4C",
   "VooTokenModule#VooToken": "0xdC6804C57a552c6433d6c7149E64c814bD43Df25",
-  "MicrosoftTokenModule#MicrosoftToken": "0x35E12a77DFdD18b4c1eCb7D43652f7c3fa265Bd0"
+  "MicrosoftTokenModule#MicrosoftToken": "0x35E12a77DFdD18b4c1eCb7D43652f7c3fa265Bd0",
+  "NvidiaTokenModule#NvidiaToken": "0x49481E595E8C68E0ED48247fd6884AEd344b290f"
 }

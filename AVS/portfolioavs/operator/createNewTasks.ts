@@ -80,7 +80,7 @@ function generateRandomTaskData(): string {
     return JSON.stringify(taskData);
 }
 
-async function createNewTask(taskData: string) {
+export async function createNewTask(taskData: string): Promise<void> {
     try {
         // Send a transaction to the createNewTask function
         const tx = await helloWorldServiceManager.createNewTask(taskData);

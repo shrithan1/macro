@@ -7,6 +7,7 @@ import {
     getDefaultConfig,
     RainbowKitProvider,
   } from '@rainbow-me/rainbowkit';
+import { ThemeProvider } from 'next-themes'
 
 const queryClient = new QueryClient()
 
@@ -14,9 +15,18 @@ export function Providers({ children,
 }: Readonly<{
   children: React.ReactNode;
 }> ) {
-    return <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider>{children}</RainbowKitProvider>
-        </QueryClientProvider>
-    </WagmiProvider>
+    return (
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <WagmiProvider config={config}>
+                <QueryClientProvider client={queryClient}>
+                    <RainbowKitProvider>{children}</RainbowKitProvider>
+                </QueryClientProvider>
+            </WagmiProvider>
+        </ThemeProvider>
+    )
 }

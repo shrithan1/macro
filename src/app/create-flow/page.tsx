@@ -42,6 +42,11 @@ export default function Home() {
     const [chatWidth, setChatWidth] = useState(50); // percentage
     const [isLoading, setIsLoading] = useState(false);
 
+    const handleLoadingChange = useCallback((loading: boolean) => {
+        console.log('[CreateFlow] Setting loading state:', loading);
+        setIsLoading(loading);
+    }, []);
+
     const handleResize = useCallback((delta: number) => {
         setChatWidth((prev) => {
             const newWidth = prev + (delta / window.innerWidth) * 100;
@@ -185,15 +190,16 @@ export default function Home() {
                 {/* Chat Section */}
                 <div style={{ width: `${chatWidth}%` }} className="border-r border-border">
                     {isLoading ? (
-                        <AILoadingAnimation message="AI is thinking..." />
+                        <AILoadingAnimation message="Macro is thinking..." />
                     ) : (
                         <ChatSection 
-                            WordWrapper={motion.span} // Pass motion component for word animation
+                            WordWrapper={motion.span}
                             wordWrapperProps={{
                                 initial: { filter: "blur(8px)" },
                                 animate: { filter: "blur(0px)" },
                                 transition: { duration: 0.5 }
                             }}
+                            onLoadingChange={handleLoadingChange}
                         />
                     )}
                 </div>

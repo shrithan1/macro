@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const AGENT_SERVER_URL = process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
 
@@ -9,11 +9,18 @@ function DeployAgentButton() {
   const [mode, setMode] = useState<"chat" | "auto">("chat");
   const [isInitialized, setIsInitialized] = useState(false);
   const [userInput, setUserInput] = useState("");
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check agent status on component mount
   useEffect(() => {
     checkAgentStatus();
     loadMessageHistory();
+    return () => {
+      // Clear interval on component unmount
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   const checkAgentStatus = async () => {
@@ -77,6 +84,55 @@ function DeployAgentButton() {
     }
   };
 
+  const sendPortfolioMessage = async () => {
+    const predefinedMessage = "if MSFT is more than 400$, transfer burn 100 AAPL tokens and buy 100 MSFT tokens";
+
+    setMessages((prev) => [...prev, `You: ${predefinedMessage}`]);
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${AGENT_SERVER_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: predefinedMessage,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      // Add all responses to the messages
+      data.messages.forEach((msg: string) => {
+        setMessages((prev) => [...prev, `Agent: ${msg}`]);
+      });
+    } catch (error) {
+      console.error("Chat error:", error);
+      setMessages((prev) => [
+        ...prev,
+        `Error: ${
+          error instanceof Error ? error.message : "Unknown error occurred"
+        }`,
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStartInterval = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    } else {
+      intervalRef.current = setInterval(sendPortfolioMessage, 15000);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
@@ -118,6 +174,13 @@ function DeployAgentButton() {
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
           >
             {loading ? "Sending..." : "Send"}
+          </button>
+          <button
+            onClick={handleStartInterval}
+            disabled={loading}
+            className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+          >
+            {intervalRef.current ? "Stop Sending" : "Start Sending"}
           </button>
         </div>
       )}

@@ -100,7 +100,6 @@ export default function Home() {
         };
 
         try {
-            console.log('Sending data to API...');
             const response = await fetch('/api/create-task', {
                 method: 'POST',
                 headers: {

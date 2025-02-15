@@ -4,8 +4,10 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 const interTight = Inter_Tight({
-  variable: "--font-inter-tight",
   subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter-tight",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -19,10 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${interTight.variable} antialiased`}
-      >
+    <html lang="en" className={interTight.variable}>
+      <body className={`font-inter-tight antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

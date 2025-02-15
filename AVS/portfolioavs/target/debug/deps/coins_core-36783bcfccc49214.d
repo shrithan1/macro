@@ -1,0 +1,10 @@
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/libcoins_core-36783bcfccc49214.rmeta: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/macros.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/enc.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/hashes.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/prelude.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/ser.rs
+
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/coins_core-36783bcfccc49214.d: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/macros.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/enc.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/hashes.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/prelude.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/ser.rs
+
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/lib.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/macros.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/enc.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/hashes.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/prelude.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/coins-core-0.8.7/src/ser.rs:

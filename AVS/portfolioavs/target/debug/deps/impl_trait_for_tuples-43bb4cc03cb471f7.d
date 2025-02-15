@@ -1,0 +1,8 @@
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/libimpl_trait_for_tuples-43bb4cc03cb471f7.dylib: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/full_automatic.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/semi_automatic.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/utils.rs
+
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/impl_trait_for_tuples-43bb4cc03cb471f7.d: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/full_automatic.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/semi_automatic.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/utils.rs
+
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/lib.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/full_automatic.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/semi_automatic.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/impl-trait-for-tuples-0.2.2/src/utils.rs:

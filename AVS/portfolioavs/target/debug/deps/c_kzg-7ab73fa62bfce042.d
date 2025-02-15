@@ -1,0 +1,8 @@
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/libc_kzg-7ab73fa62bfce042.rmeta: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/mod.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/serde.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/./generated.rs
+
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/c_kzg-7ab73fa62bfce042.d: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/mod.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/serde.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/./generated.rs
+
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/lib.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/mod.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/serde.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/c-kzg-1.0.2/bindings/rust/src/bindings/./generated.rs:

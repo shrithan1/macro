@@ -1,0 +1,13 @@
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/libzerocopy-796d0128e5ecbfba.rmeta: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/macros.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/macro_util.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/post_monomorphization_compile_fail_tests.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/util.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/third_party/rust/layout.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/wrappers.rs
+
+/Users/sanjayamirthraj/Downloads/hello-world-avs/target/debug/deps/zerocopy-796d0128e5ecbfba.d: /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/lib.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/macros.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/macro_util.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/post_monomorphization_compile_fail_tests.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/util.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/third_party/rust/layout.rs /Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/wrappers.rs
+
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/lib.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/macros.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/macro_util.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/post_monomorphization_compile_fail_tests.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/util.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/third_party/rust/layout.rs:
+/Users/sanjayamirthraj/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.7.34/src/wrappers.rs:
+
+# env-dep:CARGO_PKG_VERSION=0.7.34

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Navbar } from '@/components/navbar'
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -21,9 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={interTight.variable}>
-      <body className={`font-inter-tight antialiased`}>
-        <Providers>{children}</Providers>
+    <html lang="en" className={`${interTight.variable}`} suppressHydrationWarning>
+      <body className={`font-inter-tight antialiased min-h-screen bg-background`}>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
       </body>
     </html>
   );

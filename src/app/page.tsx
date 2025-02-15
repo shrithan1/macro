@@ -67,15 +67,15 @@ import ReactFlow, {
   ReactFlowProvider,
   BaseEdge,
   NodeProps,
-} from 'reactflow'
+} from '@xyflow/react'
 import 'reactflow/dist/style.css'
 import { toast } from 'sonner'
-import CustomBlockModal from './CustomBlockModal'
-import SwapNode from './SwapNode'
-import StakeNode from './StakeNode'
-import LiquidityNode from './LiquidityNode'
-import AllocateNode from './AllocateNode'
-import EventNode from './EventNode'
+// import CustomBlockModal from '@/app/CustomBlockModal'
+import SwapNode from '@/app/SwapNode'
+import StakeNode from '@/app/StakeNode'
+import LiquidityNode from '@/app/LiquidityNode'
+import AllocateNode from '@/app/AllocateNode'
+import EventNode from '@/app/EventNode'
 
 // Define the different block types with their properties
 const blockTypes = [
@@ -573,11 +573,11 @@ function Web3BlocksComponent() {
       </motion.div>
 
       {/* Modal for adding custom blocks */}
-      <CustomBlockModal
+      {/* <CustomBlockModal
         isOpen={isCredenzaOpen}
         onOpenChange={setIsCredenzaOpen}
         onSubmit={onSubmit}
-      />
+      /> */}
     </div>
   );
 }

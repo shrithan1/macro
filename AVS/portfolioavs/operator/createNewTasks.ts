@@ -91,8 +91,15 @@ export async function createNewTask(taskData: string) {
         
         console.log(`Transaction successful with hash: ${receipt.hash}`);
         console.log('Task data:', JSON.stringify(JSON.parse(taskData), null, 2));
+
+        return {
+            transactionHash: receipt.hash,
+            blockNumber: receipt.blockNumber,
+            taskData: JSON.parse(taskData)
+        };
     } catch (error) {
         console.error('Error sending transaction:', error);
+        throw error; // Re-throw the error to be caught by the API route
     }
 }
 export { helloWorldServiceManager };

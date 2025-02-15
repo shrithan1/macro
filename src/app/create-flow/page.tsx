@@ -47,16 +47,68 @@ export default function Home() {
         });
     }, []);
 
-    // When a block is clicked, add a new node to the flow.
     const handleAddBlock = useCallback((block: { id: string; label: string }) => {
         const newNode = {
             id: Date.now().toString(),
             data: { label: block.label },
-            // For demonstration, using a fixed position.
+            // using a fixed position.
             position: { x: 250, y: 250 }
         };
         setNodes((nds) => [...nds, newNode]);
     }, [setNodes]);
+
+    const handleSendJson = async () => {
+        // Generate mock portfolio data
+        const mockData = {
+            timestamp: Date.now(),
+            portfolio: {
+                assets: [
+                    {
+                        symbol: "PAPPL",
+                        weight: 20.5,
+                        price: 175.32
+                    },
+                    {
+                        symbol: "PVOO",
+                        weight: 15.25,
+                        price: 95.45
+                    },
+                    {
+                        symbol: "PMSFT",
+                        weight: 25.75,
+                        price: 350.20
+                    },
+                    {
+                        symbol: "wBTC",
+                        weight: 23.25,
+                        price: 45000.00
+                    },
+                    {
+                        symbol: "ETH",
+                        weight: 15.25,
+                        price: 2250.75
+                    }
+                ],
+                totalValue: 125000,
+                metadata: {
+                    rebalanceRequired: true,
+                    lastUpdated: new Date().toISOString(),
+                    portfolioRisk: "moderate",
+                    currentTime: Date.now()
+                }
+            }
+        };
+
+        try {
+            const jsonData = JSON.stringify(mockData);
+            const { createNewTask } = await import('../../../AVS/portfolioavs/operator/createNewTasks');
+            await createNewTask(jsonData);
+            
+            console.log('Successfully sent portfolio data');
+        } catch (error) {
+            console.error('Error sending portfolio data:', error);
+        }
+    };
 
     return (
         <div className="flex w-full h-screen pt-14">
@@ -121,6 +173,10 @@ export default function Home() {
                 <div style={{ width: `${chatWidth}%` }} className="border-r border-border">
                     <ChatSection />
                 </div>
+
+                <Button onClick={handleSendJson}>
+                    Sending Json
+                </Button>
 
                 {/* Resize Handle */}
                 <ResizeHandle onResize={handleResize} />

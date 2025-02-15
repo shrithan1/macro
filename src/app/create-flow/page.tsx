@@ -100,11 +100,22 @@ export default function Home() {
         };
 
         try {
-            const jsonData = JSON.stringify(mockData);
-            const { createNewTask } = await import('../../../AVS/portfolioavs/operator/createNewTasks');
-            await createNewTask(jsonData);
+            console.log('Sending data to API...');
+            const response = await fetch('/api/create-task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(mockData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('API Response:', result);
             
-            console.log('Successfully sent portfolio data');
         } catch (error) {
             console.error('Error sending portfolio data:', error);
         }

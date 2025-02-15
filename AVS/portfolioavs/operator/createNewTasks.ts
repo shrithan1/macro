@@ -80,7 +80,7 @@ function generateRandomTaskData(): string {
     return JSON.stringify(taskData);
 }
 
-async function createNewTask(taskData: string) {
+export async function createNewTask(taskData: string) {
     try {
         // Send a transaction to the createNewTask function
         const tx = await helloWorldServiceManager.createNewTask(taskData);
@@ -94,6 +94,7 @@ async function createNewTask(taskData: string) {
         console.error('Error sending transaction:', error);
     }
 }
+export { helloWorldServiceManager };
 
 // Function to create a new task with random data every 24 seconds
 function startCreatingTasks() {

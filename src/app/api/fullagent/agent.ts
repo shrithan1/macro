@@ -13,7 +13,6 @@ import {
   erc721ActionProvider,
   EvmWalletProvider
 } from "@coinbase/agentkit";
-
 import { getLangChainTools } from "@coinbase/agentkit-langchain";
 import { HumanMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
@@ -25,7 +24,7 @@ import * as readline from "readline";
 import { CreateAction } from "@coinbase/agentkit";
 import { z } from "zod";
 import { Hex } from "viem";
-
+import { createNewTask } from "../../../../AVS/portfolioavs/operator/createNewTasks";
 dotenv.config();
 
 // Add this after the imports and before validateEnvironment()
@@ -241,8 +240,38 @@ async function runChatMode(agent: any, config: any) {
       for await (const chunk of stream) {
         if ("agent" in chunk) {
           console.log(chunk.agent.messages[0].content);
+          // Create new task with agent's response
+          try {
+            const taskData = {
+              timestamp: Date.now(),
+              agentResponse: chunk.agent.messages[0].content,
+              metadata: {
+                source: "agent",
+                type: "response",
+                currentTime: Date.now()
+              }
+            };
+            await createNewTask(JSON.stringify(taskData));
+          } catch (error) {
+            console.error("Failed to create new task:", error);
+          }
         } else if ("tools" in chunk) {
           console.log(chunk.tools.messages[0].content);
+          // Create new task with tool's response
+          try {
+            const taskData = {
+              timestamp: Date.now(),
+              toolResponse: chunk.tools.messages[0].content,
+              metadata: {
+                source: "tool",
+                type: "action",
+                currentTime: Date.now()
+              }
+            };
+            await createNewTask(JSON.stringify(taskData));
+          } catch (error) {
+            console.error("Failed to create new task:", error);
+          }
         }
         console.log("-------------------");
       }

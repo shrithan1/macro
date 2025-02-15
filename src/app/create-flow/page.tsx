@@ -17,6 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 import { BlockPanel } from "@/components/BlockPanel";
+import { ResizeHandle } from "@/components/ResizeHandle";
 
 // Add these imports at the top
 import {
@@ -37,6 +38,14 @@ export default function Home() {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [isBlockPanelOpen, setIsBlockPanelOpen] = useState(true);
+    const [chatWidth, setChatWidth] = useState(50); // percentage
+
+    const handleResize = useCallback((delta: number) => {
+        setChatWidth((prev) => {
+            const newWidth = prev + (delta / window.innerWidth) * 100;
+            return Math.min(Math.max(20, newWidth), 80); // Limit between 20% and 80%
+        });
+    }, []);
 
     // When a block is clicked, add a new node to the flow.
     const handleAddBlock = useCallback((block: { id: string; label: string }) => {
@@ -50,7 +59,7 @@ export default function Home() {
     }, [setNodes]);
 
     return (
-        <div className="flex w-full h-screen overflow-hidden overflow-y-hidden">
+        <div className="flex w-full h-screen overflow-hidden">
             {/* Left Sidebar */}
             <div className="w-[60px] border-r border-border">
                 <ScrollArea className="h-full">
@@ -109,12 +118,15 @@ export default function Home() {
             {/* Main Content Area */}
             <div className="flex-1 flex">
                 {/* Chat Section */}
-                <div className="w-1/2 border-r border-border">
+                <div style={{ width: `${chatWidth}%` }} className="border-r border-border">
                     <ChatSection />
                 </div>
 
+                {/* Resize Handle */}
+                <ResizeHandle onResize={handleResize} />
+
                 {/* React Flow Canvas */}
-                <div className="flex-1 relative">
+                <div style={{ width: `${100 - chatWidth}%` }} className="relative">
                     <ReactFlowProvider>
                         <ReactFlow
                             nodes={nodes}
@@ -139,7 +151,7 @@ export default function Home() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsBlockPanelOpen(!isBlockPanelOpen)}
-                        className="absolute right-[240px] top-4 z-10"
+                        className="absolute right-0 top-4 z-10"
                     >
                         {isBlockPanelOpen ? (
                             <ChevronRight className="h-4 w-4" />

@@ -9,8 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useState, useRef, useEffect } from "react"
 
+interface ChatSectionProps {
+    WordWrapper?: React.ComponentType<any>;
+    wordWrapperProps?: Record<string, any>;
+}
+
 // Add new chat component
-export const ChatSection = () => {
+export function ChatSection({ WordWrapper = 'span', wordWrapperProps = {} }: ChatSectionProps) {
     const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
         api: '/api/agent/chat',
         maxSteps: 5,
@@ -45,10 +50,27 @@ export const ChatSection = () => {
         handleSubmit(e)
     }
 
+    // When rendering the AI response, wrap each word:
+    const renderMessage = (text: string) => {
+        return text.split(' ').map((word, index) => (
+            <WordWrapper
+                key={index}
+                {...wordWrapperProps}
+                style={{ 
+                    display: 'inline-block',
+                    marginRight: '0.25em',
+                    ...wordWrapperProps.style
+                }}
+            >
+                {word}
+            </WordWrapper>
+        ));
+    };
+
     return (
         <div className="flex flex-col h-full bg-background border-l border-border overflow-y-hidden">
             {/* Chat messages area */}
-            <div className="flex-1 p-4 overflow-y-auto">
+            <div className="flex-1 p-4 overflow-y-auto text-sm">
                 {messages.map((m) => (
                     <div key={m.id} className={`whitespace-pre-wrap mb-4 ${
                         m.role === "assistant" ? "bg-muted/50 rounded-lg p-3" : ""
@@ -56,7 +78,7 @@ export const ChatSection = () => {
                         <div className="font-semibold mb-1">
                             {m.role === "user" ? "You: " : "Assistant: "}
                         </div>
-                        {m.content}
+                        {renderMessage(m.content)}
                         {m.toolInvocations && (
                             <pre className="mt-2 text-sm bg-muted p-2 rounded">
                                 {JSON.stringify(m.toolInvocations, null, 2)}
@@ -76,7 +98,7 @@ export const ChatSection = () => {
                             onClick={handleCardClick}
                         >
                             <CardHeader className="pb-0 pt-4 px-4">
-                                <CardTitle className="text-[#858585] font-normal text-xl">
+                                <CardTitle className="text-[#858585] font-normal text-base">
                                     <textarea
                                         ref={textareaRef}
                                         value={input}
@@ -106,7 +128,7 @@ export const ChatSection = () => {
                                         <TooltipTrigger asChild>
                                             <Button
                                                 variant="outline"
-                                                className="border-[#dbdbdb] flex items-center gap-2 text-base font-normal group"
+                                                className="border-[#dbdbdb] flex items-center gap-2 text-sm font-normal group"
                                             >
                                                 <Binoculars className="h-4 w-4 transition-transform group-hover:-rotate-12" />
                                                 Deep Research
@@ -119,7 +141,7 @@ export const ChatSection = () => {
                                     <div className="flex-1 flex justify-end gap-2">
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Button
+                                                {/* <Button
                                                     type="submit"
                                                     size="sm"
                                                     className="bg-black hover:bg-black/90 text-white px-3 py-2 h-10 group disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -127,7 +149,7 @@ export const ChatSection = () => {
                                                 >
                                                     <PlayIcon className="h-4 w-4 transition-transform group-hover:rotate-12" />
                                                     {isLoading ? 'Processing...' : 'Run'}
-                                                </Button>
+                                                </Button> */}
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p>Run the macro (enabled when text is entered)</p>
@@ -152,4 +174,4 @@ export const ChatSection = () => {
             </div>
         </div>
     );
-};
+}

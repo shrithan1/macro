@@ -31,7 +31,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import AILoadingAnimation from "@/components/ai-loading-animation";
 
 export default function Home() {
     // Maintain nodes/edges state for React Flow.
@@ -39,6 +40,7 @@ export default function Home() {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [isBlockPanelOpen, setIsBlockPanelOpen] = useState(true);
     const [chatWidth, setChatWidth] = useState(50); // percentage
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleResize = useCallback((delta: number) => {
         setChatWidth((prev) => {
@@ -182,12 +184,23 @@ export default function Home() {
             <div className="flex-1 flex">
                 {/* Chat Section */}
                 <div style={{ width: `${chatWidth}%` }} className="border-r border-border">
-                    <ChatSection />
+                    {isLoading ? (
+                        <AILoadingAnimation message="AI is thinking..." />
+                    ) : (
+                        <ChatSection 
+                            WordWrapper={motion.span} // Pass motion component for word animation
+                            wordWrapperProps={{
+                                initial: { filter: "blur(8px)" },
+                                animate: { filter: "blur(0px)" },
+                                transition: { duration: 0.5 }
+                            }}
+                        />
+                    )}
                 </div>
 
-                <Button onClick={handleSendJson}>
+                {/* <Button onClick={handleSendJson}>
                     Sending Json
-                </Button>
+                </Button> */}
 
                 {/* Resize Handle */}
                 <ResizeHandle onResize={handleResize} />

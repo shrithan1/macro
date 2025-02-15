@@ -37,6 +37,9 @@ const AAPL_TOKEN = "0x55fcbD7fdab0e36C981D8a429f07649D1C19112A" as Hex;
 const MSFT_TOKEN = "0x97446cA663df9f015Ad0dA9260164b56A971b11E" as Hex;
 const VOO_TOKEN = "0x8d7d51c2fF7ad78e8c8D16e797c28f0Bf2eB5AFC" as Hex;
 const NVIDIA_TOKEN = "0xc38cC5B373214b5D8B05b6ed97FEC73E3752aA6B" as Hex;
+const WRAPPED_BTC_TOKEN = "0x92f3B59a79bFf5dc60c0d59eA13a44D082B2bdFC" as Hex;
+const USDC_TOKEN = "0x5dEaC602762362FE5f135FA5904351916053cF70" as Hex;
+const BASE_ETH = "0x4200000000000000000000000000000000000006" as Hex;
 
 /**
  * Validates that required environment variables are set
@@ -189,7 +192,9 @@ export async function initializeAgent() {
           - MSFT Token: ${MSFT_TOKEN}
           - VOO Token: ${VOO_TOKEN}
           - NVIDIA Token: ${NVIDIA_TOKEN}
-          
+          - Wrapped BTC: ${WRAPPED_BTC_TOKEN}
+          - USDC Token: ${USDC_TOKEN}
+          - Base ETH: ${BASE_ETH}
           Before executing your first action, get the wallet details to see what network 
           you're on. If there is a 5XX (internal) HTTP error code, ask the user to try again later. If someone 
           asks you to do something you can't do with your currently available tools, you must say so, and 

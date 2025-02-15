@@ -42,11 +42,6 @@ export default function Home() {
     const [chatWidth, setChatWidth] = useState(50); // percentage
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleLoadingChange = useCallback((loading: boolean) => {
-        console.log('[CreateFlow] Setting loading state:', loading);
-        setIsLoading(loading);
-    }, []);
-
     const handleResize = useCallback((delta: number) => {
         setChatWidth((prev) => {
             const newWidth = prev + (delta / window.innerWidth) * 100;
@@ -199,7 +194,6 @@ export default function Home() {
                                 animate: { filter: "blur(0px)" },
                                 transition: { duration: 0.5 }
                             }}
-                            onLoadingChange={handleLoadingChange}
                         />
                     )}
                 </div>

@@ -3,19 +3,19 @@
 import React from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
-
+import ReactMarkdown from 'react-markdown';
 import { Plus, TelescopeIcon as Binoculars, AudioWaveformIcon as WaveformIcon, PlayIcon } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useState, useRef, useEffect } from "react"
 
 interface ChatSectionProps {
-    WordWrapper?: React.ComponentType<any>;
+    WordWrapper: React.ComponentType<any>;
     wordWrapperProps?: Record<string, any>;
 }
 
 // Add new chat component
-export function ChatSection({ WordWrapper = 'span', wordWrapperProps = {} }: ChatSectionProps) {
+export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionProps) {
     const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
         api: '/api/agent/chat',
         maxSteps: 5,
@@ -50,21 +50,53 @@ export function ChatSection({ WordWrapper = 'span', wordWrapperProps = {} }: Cha
         handleSubmit(e)
     }
 
-    // When rendering the AI response, wrap each word:
+    // When rendering the AI response, wrap each word and support markdown:
     const renderMessage = (text: string) => {
-        return text.split(' ').map((word, index) => (
-            <WordWrapper
-                key={index}
-                {...wordWrapperProps}
-                style={{ 
-                    display: 'inline-block',
-                    marginRight: '0.25em',
-                    ...wordWrapperProps.style
+        return (
+            <ReactMarkdown
+                components={{
+                    // Customize how text nodes are rendered
+                    text: ({ children }) => {
+                        return children.toString().split(' ').map((word, index) => (
+                            <WordWrapper
+                                key={index}
+                                {...wordWrapperProps}
+                                style={{ 
+                                    display: 'inline-block',
+                                    marginRight: '0.25em',
+                                    ...wordWrapperProps.style
+                                }}
+                            >
+                                {word}
+                            </WordWrapper>
+                        ));
+                    },
+
+                    code: ({ node, inline, className, children, ...props }) => (
+                        <code
+                            className={`${className} ${inline ? 'bg-muted px-1 py-0.5 rounded' : 'block bg-muted p-2 rounded-lg'}`}
+                            {...props}
+                        >
+                            {children}
+                        </code>
+                    ),
+
+                    a: ({ node, children, href, ...props }) => (
+                        <a
+                            href={href}
+                            className="text-primary hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            {...props}
+                        >
+                            {children}
+                        </a>
+                    ),
                 }}
             >
-                {word}
-            </WordWrapper>
-        ));
+                {text}
+            </ReactMarkdown>
+        );
     };
 
     return (
@@ -141,7 +173,7 @@ export function ChatSection({ WordWrapper = 'span', wordWrapperProps = {} }: Cha
                                     <div className="flex-1 flex justify-end gap-2">
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                {/* <Button
+                                                <Button
                                                     type="submit"
                                                     size="sm"
                                                     className="bg-black hover:bg-black/90 text-white px-3 py-2 h-10 group disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -149,7 +181,7 @@ export function ChatSection({ WordWrapper = 'span', wordWrapperProps = {} }: Cha
                                                 >
                                                     <PlayIcon className="h-4 w-4 transition-transform group-hover:rotate-12" />
                                                     {isLoading ? 'Processing...' : 'Run'}
-                                                </Button> */}
+                                                </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p>Run the macro (enabled when text is entered)</p>

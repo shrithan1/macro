@@ -127,7 +127,7 @@ const Preview = () => {
       </div>
 
       <Floating sensitivity={0} className="overflow-hidden pointer-events-none">
-        <FloatingElement depth={0.5} className="top-[50%] left-[85%]">
+        <FloatingElement depth={0.75} className="top-[50%] left-[85%]">
           <motion.img
             variants={imageVariant}
             initial="initial"
@@ -147,7 +147,7 @@ const Preview = () => {
             className="w-12 h-12 md:w-18 md:h-18 object-cover"
           />
         </FloatingElement>
-        <FloatingElement depth={1} className="top-[10%] left-[73%]">
+        <FloatingElement depth={1.25} className="top-[10%] left-[73%]">
           <motion.img
             variants={imageVariant}
             initial="initial"
@@ -157,7 +157,7 @@ const Preview = () => {
             className="w-12 h-12 md:w-18 md:h-18 object-cover"
           />
         </FloatingElement>
-        <FloatingElement depth={1} className="top-[40%] left-[17%]">
+        <FloatingElement depth={1.25} className="top-[40%] left-[17%]">
           <motion.img
             variants={imageVariant}
             initial="initial"
@@ -177,7 +177,7 @@ const Preview = () => {
             className="w-12 h-12 md:w-18 md:h-18 object-cover"
           />
         </FloatingElement>
-        <FloatingElement depth={1} className="top-[80%] left-[50%]">
+        <FloatingElement depth={0.75} className="top-[80%] left-[50%]">
           <motion.img
             variants={imageVariant}
             initial="initial"
@@ -187,7 +187,7 @@ const Preview = () => {
             className="w-12 h-12 md:w-18 md:h-18 object-cover"
           />
         </FloatingElement>
-        <FloatingElement depth={1} className="top-[73%] left-[32%]">
+        <FloatingElement depth={0.75} className="top-[73%] left-[32%]">
           <motion.img
             variants={imageVariant}
             initial="initial"
@@ -197,7 +197,7 @@ const Preview = () => {
             className="w-12 h-12 md:w-18 md:h-18 object-cover"
           />
         </FloatingElement>
-        <FloatingElement depth={1} className="top-[80%] left-[80%]">
+        <FloatingElement depth={0.75} className="top-[80%] left-[80%]">
           <motion.img
             variants={imageVariant}
             initial="initial"

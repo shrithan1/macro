@@ -6,12 +6,10 @@ import Floating, {
   FloatingElement,
 } from "@/fancy/components/image/parallax-floating";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import VerticalCutReveal from "@/fancy/components/text/vertical-cut-reveal";
-
-// import { exampleImages } from "@/utils/_helpers/exampleImages";
 
 const textVariant = {
   initial: { opacity: 0, y: 10 },
@@ -40,19 +38,11 @@ const imagePaths = [
 
 const Preview = () => {
   const [scope] = useAnimate();
-  const [inputValue, setInputValue] = useState("");
+  const router = useRouter();
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+  const handleButtonClick = () => {
+    router.push("/create-flow");
   };
-
-  // useEffect(() => {
-  //   animate(
-  //     "img",
-  //     { opacity: [0, 1] },
-  //     { duration: 0.5, delay: stagger(0.05) }
-  //   );
-  // }, [animate]);
 
   return (
     <div
@@ -127,7 +117,7 @@ const Preview = () => {
           transition={{ duration: 1, delay: 1.9 }}
         >
           <Button
-            onClick={() => console.log("Button clicked!")}
+            onClick={handleButtonClick}
             className="bg-[#180D68] hover:bg-[#463c7c] text-white px-6 py-3 rounded flex items-center"
           >
             <Send className="h-4 w-4 mr-2" />
@@ -136,7 +126,7 @@ const Preview = () => {
         </motion.div>
       </div>
 
-      <Floating sensitivity={0} className="overflow-hidden">
+      <Floating sensitivity={0} className="overflow-hidden pointer-events-none">
         <FloatingElement depth={0.5} className="top-[50%] left-[85%]">
           <motion.img
             variants={imageVariant}

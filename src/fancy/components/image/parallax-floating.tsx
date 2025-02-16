@@ -11,7 +11,6 @@ import {
 import { useAnimationFrame } from "motion/react"
 
 import { cn } from "@/lib/utils"
-import { useMousePositionRef } from "@/hooks/use-mouse-position-ref"
 
 interface FloatingContextType {
   registerElement: (id: string, element: HTMLDivElement, depth: number) => void
@@ -45,8 +44,7 @@ const Floating = ({
       }
     >()
   )
-  const mousePositionRef = useMousePositionRef(containerRef)
-
+  
   const registerElement = useCallback(
     (id: string, element: HTMLDivElement, depth: number) => {
       elementsMap.current.set(id, {

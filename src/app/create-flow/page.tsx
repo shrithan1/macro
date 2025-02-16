@@ -101,8 +101,10 @@ export default function Home() {
             }
         };
 
+        // Save to localStorage for coinbase-test page
+        localStorage.setItem('portfolioData', JSON.stringify(mockData));
+
         try {
-            console.log('Sending data to API...');
             const response = await fetch('/api/create-task', {
                 method: 'POST',
                 headers: {

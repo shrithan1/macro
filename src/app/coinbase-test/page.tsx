@@ -3,6 +3,27 @@ import React, { useState, useEffect, useRef } from "react";
 
 const AGENT_SERVER_URL = process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
 
+// Add these types at the top of the file
+interface Asset {
+  symbol: string;
+  weight: number;
+  price: number;
+}
+
+interface PortfolioData {
+  timestamp: number;
+  portfolio: {
+    assets: Asset[];
+    totalValue: number;
+    metadata: {
+      rebalanceRequired: boolean;
+      lastUpdated: string;
+      portfolioRisk: string;
+      currentTime: number;
+    };
+  };
+}
+
 function DeployAgentButton() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
@@ -85,9 +106,14 @@ function DeployAgentButton() {
   };
 
   const sendPortfolioMessage = async () => {
-    const predefinedMessage = "if MSFT is more than 400$, transfer burn 100 AAPL tokens and buy 100 MSFT tokens";
+    // Get the saved portfolio data from localStorage
+    const savedPortfolioData = localStorage.getItem('portfolioData');
+    if (!savedPortfolioData) {
+      console.error('No portfolio data found in localStorage');
+      return;
+    }
 
-    setMessages((prev) => [...prev, `You: ${predefinedMessage}`]);
+    setMessages((prev) => [...prev, `You: ${savedPortfolioData}`]);
     setLoading(true);
 
     try {
@@ -97,7 +123,8 @@ function DeployAgentButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: predefinedMessage,
+          message: savedPortfolioData,
+          portfolioData: JSON.parse(savedPortfolioData)
         }),
       });
 

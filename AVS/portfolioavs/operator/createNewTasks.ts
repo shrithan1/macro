@@ -6,14 +6,17 @@ const path = require('path');
 dotenv.config();
 
 // Setup env variables
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 /// TODO: Hack
 let chainId = 31337;
 
 const avsDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../contracts/deployments/hello-world/${chainId}.json`), 'utf8'));
 const helloWorldServiceManagerAddress = avsDeploymentData.addresses.helloWorldServiceManager;
 const helloWorldServiceManagerABI = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../abis/HelloWorldServiceManager.json'), 'utf8'));
+
+// Initialize wallet from private key
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "http://localhost:8545");
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || "", provider);
+
 // Initialize contract objects from ABIs
 const helloWorldServiceManager = new ethers.Contract(helloWorldServiceManagerAddress, helloWorldServiceManagerABI, wallet);
 
@@ -83,15 +86,13 @@ function generateRandomTaskData(): string {
 
 export async function createNewTask(taskData: string) {
     try {
-        // Send a transaction to the createNewTask function
+        console.log('Creating new task...');
         const tx = await helloWorldServiceManager.createNewTask(taskData);
+        console.log('Transaction sent:', tx.hash);
         
-        // Wait for the transaction to be mined
         const receipt = await tx.wait();
-        
         console.log(`Transaction successful with hash: ${receipt.hash}`);
-        console.log('Task data:', JSON.stringify(JSON.parse(taskData), null, 2));
-
+        
         return {
             transactionHash: receipt.hash,
             blockNumber: receipt.blockNumber,
@@ -99,20 +100,27 @@ export async function createNewTask(taskData: string) {
         };
     } catch (error) {
         console.error('Error sending transaction:', error);
-        throw error; // Re-throw the error to be caught by the API route
+        throw error;
     }
 }
-export { helloWorldServiceManager };
 
-// Function to create a new task with random data every 24 seconds
+// Modify the interval function to include error handling
 function startCreatingTasks() {
-    setInterval(() => {
-        const taskData = generateRandomTaskData();
-        console.log('Creating new task with data:');
-        console.log(JSON.stringify(JSON.parse(taskData), null, 2));
-        createNewTask(taskData);
+    console.log('Starting task creation process...');
+    setInterval(async () => {
+        try {
+            const taskData = generateRandomTaskData();
+            console.log('Creating new task with data:');
+            console.log(JSON.stringify(JSON.parse(taskData), null, 2));
+            const result = await createNewTask(taskData);
+            console.log('Task created successfully:', result);
+        } catch (error) {
+            console.error('Error in task creation interval:', error);
+        }
     }, 24000);
 }
 
-// Start the process
-startCreatingTasks();
+// Only start if this file is being run directly
+if (require.main === module) {
+    startCreatingTasks();
+}

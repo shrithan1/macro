@@ -22,7 +22,6 @@ export function Navbar() {
         <header className="absolute top-0 left-0 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 
             <div className="flex flex-row px-3 h-14 items-center">
-
                 <Image src="/eigenlogo.png" alt="eigen" width={50} height={50} className="mr-2" />
                 <div className="space-x-6 flex">
                     <Link href="/" className="mr-2 flex items-center group">
@@ -39,8 +38,8 @@ export function Navbar() {
                     </nav>
                 </div>
 
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    <TooltipDisplay variant={2} />
+                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end pr-10">
+                    <TooltipDisplay variant={3} />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">

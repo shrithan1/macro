@@ -126,7 +126,7 @@ export default function Home() {
 
             const result = await response.json();
             console.log('API Response:', result);
-            
+
         } catch (error) {
             console.error('Error sending portfolio data:', error);
         }
@@ -142,8 +142,8 @@ export default function Home() {
                 }
             ];
 
-            
-            
+
+
             const response = await fetch('/api/agent/compile', {
                 method: 'POST',
                 headers: {
@@ -261,7 +261,7 @@ export default function Home() {
                     {isLoading ? (
                         <AILoadingAnimation message="Macro is thinking..." />
                     ) : (
-                        <ChatSection 
+                        <ChatSection
                             WordWrapper={motion.span}
                             wordWrapperProps={{
                                 initial: { filter: "blur(8px)" },
@@ -271,18 +271,15 @@ export default function Home() {
                         />
                     )}
                 </div>
-
-                {/* <Button onClick={handleSendJson}>
-                    Sending Json
-                </Button> */}
-
+                {/* handleClickJson ts */}
+                
                 {/* Resize Handle */}
                 <ResizeHandle onResize={handleResize} />
 
                 {/* React Flow Canvas */}
                 <div style={{ width: `${100 - chatWidth}%` }} className="relative">
-                    <Button 
-                        onClick={handleCompileStrategy} 
+                    <Button
+                        onClick={handleCompileStrategy}
                         className="absolute top-4 right-4 z-10"
                         disabled={isCompiling}
                     >
@@ -313,7 +310,7 @@ export default function Home() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsBlockPanelOpen(!isBlockPanelOpen)}
-                        className="absolute right-0 top-4 z-10"
+                        className="absolute right-3 top-3 z-10"
                     >
                         {isBlockPanelOpen ? (
                             <ChevronRight className="h-4 w-4" />
@@ -321,7 +318,7 @@ export default function Home() {
                             <ChevronLeft className="h-4 w-4" />
                         )}
                     </Button>
-                    
+
                     {isBlockPanelOpen && (
                         <BlockPanel onAddBlock={handleAddBlock} />
                     )}

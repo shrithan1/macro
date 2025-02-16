@@ -9,7 +9,7 @@ interface TooltipDisplayProps {
 export function TooltipDisplay({ variant = 1 }: TooltipDisplayProps) {
   return (
     <div className="flex items-center gap-1.5 rounded-lg bg-black/90 px-3 py-1.5 text-white">
-      <span>Tooltip</span>
+      {/* <span>Tooltip</span> */}
       {variant >= 2 && (
         <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-neutral-800">
           <Command className="h-3.5 w-3.5" />
@@ -17,7 +17,7 @@ export function TooltipDisplay({ variant = 1 }: TooltipDisplayProps) {
       )}
       {variant >= 3 && (
         <div className="flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-neutral-800">
-          <CommandIcon className="h-3.5 w-3.5" />
+          <h1 className="text-xs">K</h1>
         </div>
       )}
       {variant >= 4 && (

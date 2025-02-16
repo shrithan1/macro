@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import {Play, Pause, Loader} from "lucide-react"
+import { Input } from "@/components/ui/input";
 
 const AGENT_SERVER_URL = process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
 
@@ -231,66 +233,97 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
   };
 
   return (
-    <div className="space-y-4">
-      {messages.length > 0 && (
-        <div className="mt-4 p-4 border rounded max-h-96 overflow-auto bg-gray-50">
-          {messages.map((msg, i) => (
-            <div key={i}>
-              <div className={`p-3 rounded-lg ${
-                msg.startsWith('You:') ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
-              } mb-2 shadow-sm`}>
-                <div className="font-medium">
-                  {msg.startsWith('You:') ? '👤 ' : '🤖 '}
-                  {msg}
+    <div className="grid grid-cols-2 gap-8 pt-24">
+      {/* Left side - Chat */}
+      <div className="flex flex-col space-y-4 max-h-[800px]">
+        <div className="flex-1 overflow-auto">
+          {messages.length > 0 && (
+            <div className="p-4 border rounded bg-gray-50 h-full overflow-auto">
+              {messages.map((msg, i) => (
+                <div key={i}>
+                  <div className={`p-3 rounded-lg ${
+                    msg.startsWith('You:') ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
+                  } mb-2 shadow-sm`}>
+                    <div className="font-medium">
+                      {msg.startsWith('You:') ? '👤 ' : '🤖 '}
+                      {msg}
+                    </div>
+                  </div>
+                  {i < messages.length - 1 && (
+                    <div className="flex items-center justify-center my-3">
+                      <div className="h-px bg-gray-300 w-full"></div>
+                      <span className="px-2 text-gray-500 text-sm">•</span>
+                      <div className="h-px bg-gray-300 w-full"></div>
+                    </div>
+                  )}
                 </div>
-              </div>
-              {i < messages.length - 1 && (
-                <div className="flex items-center justify-center my-3">
-                  <div className="h-px bg-gray-300 w-full"></div>
-                  <span className="px-2 text-gray-500 text-sm">•</span>
-                  <div className="h-px bg-gray-300 w-full"></div>
-                </div>
-              )}
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
 
-      {isInitialized && (
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            placeholder="Type your message..."
-            className="flex-1 p-2 border rounded"
-            disabled={loading}
-          />
-          <button
-            onClick={handleSendMessage}
-            disabled={loading || !userInput.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-          >
-            {loading ? "Sending..." : "Send"}
-          </button>
-          <button
-            onClick={handleStartInterval}
-            disabled={loading}
-            className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
-          >
-            {intervalRef.current ? "Stop Strategy" : "Deploy Strategy"}
-          </button>
+        {isInitialized && (
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              placeholder="Type your message..."
+              className="flex-1 p-2 border rounded"
+              disabled={loading}
+              autoFocus
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={loading || !userInput.trim()}
+              className="px-4 py-2 bg-[#180D68] text-white rounded disabled:opacity-50 flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader className="w-5 h-5 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send"
+              )}
+            </button>
+            <button
+              onClick={handleStartInterval}
+              disabled={loading}
+              className="px-4 py-2 bg-[#180D68] text-white rounded disabled:opacity-50 flex items-center gap-2"
+            >
+              {intervalRef.current ? (
+                <>
+                  <Pause className="w-5 h-5" />
+                  Stop Strategy
+                </>
+              ) : (
+                <>
+                  <Play className="w-5 h-5" />
+                  Deploy Strategy
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Right side - Chart placeholder */}
+      <div className="border rounded-lg bg-gray-50 p-4 flex items-center justify-center overflow-auto">
+        <div className="text-gray-400 text-center">
+          <p className="text-lg font-medium">Chart Coming Soon</p>
+          <p className="text-sm">This area will display portfolio analytics and charts</p>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
 export default function Page() {
   return (
-    <div className="container mx-auto p-8 my-12 py-14">
-            <DeployAgentButton />
+    <div className="container mx-auto px-8">
+      <DeployAgentButton />
     </div>
   );
 }

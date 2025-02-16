@@ -8,7 +8,9 @@ import {
     Controls,
     Background,
     useNodesState,
-    useEdgesState
+    useEdgesState,
+    addEdge,
+    Node
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { ChatSection } from "@/components/ChatSection";
@@ -236,6 +238,9 @@ export default function Home() {
     const [isCompiling, setIsCompiling] = useState(false);
     const [flowName, setFlowName] = useState("My Flow");
 
+    // Add this new state and handlers for connections
+    const [selectedNode, setSelectedNode] = useState<string | null>(null);
+
     // Load saved flow data on component mount
     useEffect(() => {
         const savedFlow = localStorage.getItem('currentFlow');
@@ -444,6 +449,30 @@ export default function Home() {
         customNode: CustomNode,
     };
 
+    // Add this new handler for connections
+    const onConnect = useCallback((params: any) => {
+        // Create a new edge when nodes are connected
+        setEdges((eds) => addEdge(params, eds));
+    }, [setEdges]);
+
+    const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+        if (!selectedNode) {
+            setSelectedNode(node.id);
+        } else if (selectedNode !== node.id) {
+            // Create a new connection
+            const newEdge = {
+                id: `edge-${selectedNode}-${node.id}`,
+                source: selectedNode,
+                target: node.id,
+                type: 'default'
+            };
+            setEdges((eds) => [...eds, newEdge]);
+            setSelectedNode(null);
+        } else {
+            setSelectedNode(null);
+        }
+    }, [selectedNode, setEdges]);
+
     return (
         <div className="flex w-full h-screen pt-14">
             {/* Left Sidebar */}
@@ -554,8 +583,12 @@ export default function Home() {
                             edges={edges}
                             onNodesChange={onNodesChange}
                             onEdgesChange={onEdgesChange}
+                            onConnect={onConnect}
+                            onNodeClick={onNodeClick}
                             nodeTypes={nodeTypes}
                             fitView
+                            connectOnClick={true}
+                            deleteKeyCode={['Backspace', 'Delete']}
                         >
                             <Controls />
                             <MiniMap />

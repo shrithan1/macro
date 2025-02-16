@@ -9,7 +9,15 @@ const tradingStrategySchema = z.object({
     z.object({
       id: z.string(),
       // Allowed block types are the primitive ones plus our custom blocks.
-      type: z.enum(['MSFT', 'AAPL', 'NVDA', 'VOO', 'start-block', 'yield-block', 'wallet-block']),
+      type: z.enum([
+        'MSFT',
+        'AAPL',
+        'NVDA',
+        'VOO',
+        'start-block',
+        'yield-block',
+        'wallet-block'
+      ]),
       position: z.object({
         x: z.number(),
         y: z.number(),
@@ -29,6 +37,18 @@ const tradingStrategySchema = z.object({
     risk_level: z.string(),
   }),
 });
+
+
+function cleanJsonOutput(rawOutput: string): string {
+  let output = rawOutput.trim();
+  if (output.startsWith('```')) {
+
+    output = output.replace(/^```(?:json)?\n/, '');
+
+    output = output.replace(/\n?```$/, '');
+  }
+  return output;
+}
 
 export async function POST(req: Request) {
   try {
@@ -70,8 +90,10 @@ Ensure that the strategy is valid and that all blocks are connected.`,
 ${JSON.stringify(messages)}`,
     });
 
+    // Clean the result text to remove any markdown formatting.
+    const cleanedText = cleanJsonOutput(result.text);
     // Parse the output (assuming result.text contains JSON) and validate against our schema.
-    const parsedStrategy = tradingStrategySchema.parse(JSON.parse(result.text));
+    const parsedStrategy = tradingStrategySchema.parse(JSON.parse(cleanedText));
     console.log("Compiled Trading Strategy:", parsedStrategy);
 
     // Return the structured strategy as JSON.

@@ -143,7 +143,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                     ))
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <div className="w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                        {/* <div className="w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
                             <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
                             <div className="h-4 w-1/2 bg-muted rounded"></div>
                         </div>
@@ -158,7 +158,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                         <div className="hidden lg:block w-[150px] h-[10px] bg-muted/50 rounded-lg p-4 animate-pulse">
                             <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
                             <div className="h-4 w-1/2 bg-muted rounded"></div>
-                        </div>
+                        </div> */}
                     </div>
                 )}
             </div>

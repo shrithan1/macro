@@ -6,9 +6,9 @@ import Floating, {
   FloatingElement,
 } from "@/fancy/components/image/parallax-floating";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import React from "react";
-import { useRouter } from "next/navigation";
 import VerticalCutReveal from "@/fancy/components/text/vertical-cut-reveal";
 
 const textVariant = {

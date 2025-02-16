@@ -84,7 +84,7 @@ export function SearchProgress({ query = "XYZ" }: SearchProgressProps) {
         }
         return newProgress
       })
-    }, 210)
+    }, 300)
 
     return () => clearInterval(progressInterval)
   }, [isComplete])
@@ -98,7 +98,7 @@ export function SearchProgress({ query = "XYZ" }: SearchProgressProps) {
   return (
     <>
       <style>{pulseRotateScaleKeyframes}</style>
-      <div className="w-full max-w-3xl mx-auto p-4">
+      <div className="w-full max-w-3xl mx-auto">
         <div className="border rounded-lg p-4 bg-white shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">

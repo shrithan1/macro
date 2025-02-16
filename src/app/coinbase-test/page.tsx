@@ -27,7 +27,6 @@ interface PortfolioData {
 function DeployAgentButton() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
-  const [mode, setMode] = useState<"chat" | "auto">("chat");
   const [isInitialized, setIsInitialized] = useState(false);
   const [userInput, setUserInput] = useState("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -71,6 +70,7 @@ function DeployAgentButton() {
     setLoading(true);
 
     try {
+      // First, send the message to the agent
       const response = await fetch(`${AGENT_SERVER_URL}/chat`, {
         method: "POST",
         headers: {
@@ -88,9 +88,66 @@ function DeployAgentButton() {
       }
 
       // Add all responses to the messages
-      data.messages.forEach((msg: string) => {
+      for (const msg of data.messages) {
         setMessages((prev) => [...prev, `Agent: ${msg}`]);
-      });
+        
+        // Create a task for the agent's response
+        try {
+          await fetch('/api/create-task', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              timestamp: Date.now(),
+              portfolio: {
+                assets: [],
+                totalValue: 0,
+                metadata: {
+                  rebalanceRequired: false,
+                  lastUpdated: new Date().toISOString(),
+                  portfolioRisk: "agent_response",
+                  currentTime: Date.now(),
+                  agentMessage: msg,
+                  source: "agent",
+                  type: "response",
+                  inResponseTo: userInput
+                }
+              }
+            })
+          });
+        } catch (taskError) {
+          console.error("Failed to create task for agent response:", taskError);
+        }
+      }
+
+      // Create a task for the user's message
+      try {
+        await fetch('/api/create-task', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            timestamp: Date.now(),
+            portfolio: {
+              assets: [],
+              totalValue: 0,
+              metadata: {
+                rebalanceRequired: false,
+                lastUpdated: new Date().toISOString(),
+                portfolioRisk: "user_input",
+                currentTime: Date.now(),
+                userMessage: userInput,
+                source: "user",
+                type: "message"
+              }
+            }
+          })
+        });
+      } catch (taskError) {
+        console.error("Failed to create task for user message:", taskError);
+      }
     } catch (error) {
       console.error("Chat error:", error);
       setMessages((prev) => [
@@ -107,13 +164,27 @@ function DeployAgentButton() {
 
   const sendPortfolioMessage = async () => {
     // Get the saved portfolio data from localStorage
-    const savedPortfolioData = localStorage.getItem('portfolioData');
-    if (!savedPortfolioData) {
+    const savedPortfolioDataMessage = `Execute comprehensive market analysis:
+1. Fetch and report current price data for all available assets (AAPL, MSFT, NVIDIA, VOO, ABNB, ETH, USDC)
+2. Calculate and display the following metrics for each asset:
+   - current tokens held of each asset in the wallet
+   - current USD value of each asset in the wallet
+3. Risk assessment:
+   - Portfolio concentration metrics
+   - Sector exposure analysis
+   - Volatility indicators
+Do not execute any trades. This is a monitoring and analysis-only operation In the end say that you are done and that you have reported all the findings and that no trades are to be made for now.`;
+
+    const updatedMessage = savedPortfolioDataMessage ? `${savedPortfolioDataMessage} Present findings in a clear, structured format with USD values and percentages where applicable.` : null;
+    const savedPortfolioData = JSON.stringify({
+      instruction: updatedMessage,
+      timestamp: Date.now()
+    });
+    if (!updatedMessage) {
       console.error('No portfolio data found in localStorage');
       return;
     }
 
-    setMessages((prev) => [...prev, `You: ${savedPortfolioData}`]);
     setLoading(true);
 
     try {
@@ -123,8 +194,7 @@ function DeployAgentButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: savedPortfolioData,
-          portfolioData: JSON.parse(savedPortfolioData)
+          message: savedPortfolioData
         }),
       });
 
@@ -156,35 +226,37 @@ function DeployAgentButton() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     } else {
-      intervalRef.current = setInterval(sendPortfolioMessage, 15000);
+      intervalRef.current = setInterval(sendPortfolioMessage, 25000);
     }
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
-        <select
-          value={mode}
-          onChange={(e) => setMode(e.target.value as "chat" | "auto")}
-          className="p-2 border rounded"
-          disabled={loading}
-        >
-          <option value="chat">Chat Mode</option>
-          <option value="auto">Auto Mode</option>
-        </select>
-      </div>
-
       {messages.length > 0 && (
-        <div className="mt-4 p-4 border rounded max-h-96 overflow-auto">
+        <div className="mt-4 p-4 border rounded max-h-96 overflow-auto bg-gray-50">
           {messages.map((msg, i) => (
-            <div key={i} className="mb-2">
-              {msg}
+            <div key={i}>
+              <div className={`p-3 rounded-lg ${
+                msg.startsWith('You:') ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
+              } mb-2 shadow-sm`}>
+                <div className="font-medium">
+                  {msg.startsWith('You:') ? '👤 ' : '🤖 '}
+                  {msg}
+                </div>
+              </div>
+              {i < messages.length - 1 && (
+                <div className="flex items-center justify-center my-3">
+                  <div className="h-px bg-gray-300 w-full"></div>
+                  <span className="px-2 text-gray-500 text-sm">•</span>
+                  <div className="h-px bg-gray-300 w-full"></div>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {isInitialized && mode === "chat" && (
+      {isInitialized && (
         <div className="flex gap-2">
           <input
             type="text"
@@ -207,7 +279,7 @@ function DeployAgentButton() {
             disabled={loading}
             className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
           >
-            {intervalRef.current ? "Stop Sending" : "Start Sending"}
+            {intervalRef.current ? "Stop Strategy" : "Deploy Strategy"}
           </button>
         </div>
       )}
@@ -217,9 +289,8 @@ function DeployAgentButton() {
 
 export default function Page() {
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-8">Coinbase Agent Chat</h1>
-      <DeployAgentButton />
+    <div className="container mx-auto p-8 my-12 py-14">
+            <DeployAgentButton />
     </div>
   );
 }

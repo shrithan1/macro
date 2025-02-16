@@ -91,3 +91,20 @@
   font-display: swap;
   src: url('/fonts/inter-tight.woff2') format('woff2');
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+.fade-in3 {
+  animation: fadeIn 3s ease-in-out forwards;
+}

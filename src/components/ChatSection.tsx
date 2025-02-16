@@ -25,6 +25,23 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
     const cardRef = useRef<HTMLDivElement>(null);
     const [isCompiling, setIsCompiling] = useState(false);
 
+    const exampleStrategies = [
+        "Create strategy that implements all available assets that rebalances at price dips",
+        "Build a dollar-cost averaging strategy for top 5 crypto assets",
+        "Design a hedging strategy using options and futures",
+        "Create a momentum-based trading strategy with stop losses",
+        "Implement a grid trading strategy for volatile market conditions"
+    ];
+
+    const handleExampleClick = (example: string) => {
+        setInput(example);
+        if (textareaRef.current) {
+            textareaRef.current.focus();
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
+        }
+    };
+
     // Adjust textarea height on input change
     useEffect(() => {
         if (textareaRef.current) {
@@ -178,6 +195,24 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
 
     return (
         <div className="flex flex-col h-full bg-background border-l border-border overflow-y-hidden">
+            {/* Example strategies section - only show when no messages */}
+            {messages.length === 0 && (
+                <div className="p-4 border-b border-border">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-3">Example Strategies</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {exampleStrategies.map((strategy, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleExampleClick(strategy)}
+                                className="text-sm px-3 py-1.5 bg-muted/50 hover:bg-muted rounded-md transition-colors duration-200"
+                            >
+                                {strategy}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Chat messages area */}
             <div className="flex-1 p-4 overflow-y-auto text-sm">
                 {messages.length > 0 ? (

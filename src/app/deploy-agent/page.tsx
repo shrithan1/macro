@@ -334,6 +334,7 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
       <div className="col-span-1">
         <MockFinanceTerminal />
       </div>
+      
     </div>
   );
 }

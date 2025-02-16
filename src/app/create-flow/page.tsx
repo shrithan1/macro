@@ -232,48 +232,6 @@ export default function Home() {
     const [chatWidth, setChatWidth] = useState(50); // percentage
     const [isLoading, setIsLoading] = useState(false);
     const [isCompiling, setIsCompiling] = useState(false);
-    const [flowName, setFlowName] = useState("My Flow");
-
-    // Load saved flow data on component mount
-    useEffect(() => {
-        const savedFlow = localStorage.getItem('currentFlow');
-        if (savedFlow) {
-            const flowData = JSON.parse(savedFlow);
-            setNodes(flowData.nodes || []);
-            setEdges(flowData.edges || []);
-            setFlowName(flowData.name || "My Flow");
-        }
-    }, []);
-
-    // Save flow data whenever it changes
-    useEffect(() => {
-        const flowData = {
-            nodes,
-            edges,
-            name: flowName,
-            lastModified: new Date().toISOString()
-        };
-        localStorage.setItem('currentFlow', JSON.stringify(flowData));
-    }, [nodes, edges, flowName]);
-
-    const handleSaveFlow = useCallback(() => {
-        const flowData = {
-            nodes,
-            edges,
-            name: flowName,
-            lastModified: new Date().toISOString()
-        };
-        
-        // Save to current flow
-        localStorage.setItem('currentFlow', JSON.stringify(flowData));
-        
-        // Save to flow history
-        const flowHistory = JSON.parse(localStorage.getItem('flowHistory') || '[]');
-        flowHistory.push(flowData);
-        localStorage.setItem('flowHistory', JSON.stringify(flowHistory));
-        
-        toast.success('Flow saved successfully!');
-    }, [nodes, edges, flowName]);
 
     const handleResize = useCallback((delta: number) => {
         setChatWidth((prev) => {
@@ -286,6 +244,7 @@ export default function Home() {
         const newNode = {
             id: Date.now().toString(),
             data: { label: block.label },
+            // using a fixed position.
             position: { x: 250, y: 250 }
         };
         setNodes((nds) => [...nds, newNode]);
@@ -363,7 +322,7 @@ export default function Home() {
             const dummyMessages = [
                 {
                     role: "user",
-                    content: "Generate a trading strategy with a start-block, an AAPL block, a VOO block, an NVDA block, an MSFT block, and an ETH and USDC block at the end."
+                    content: "Create a trading strategy with a start block, an AAPL block, a VOO block, an NVDA block, an MSFT block, and a crypto block."
                 }
             ];
 

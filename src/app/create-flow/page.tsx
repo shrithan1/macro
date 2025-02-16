@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
     ReactFlowProvider,
     ReactFlow,
@@ -12,14 +12,10 @@ import {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { ChatSection } from "@/components/ChatSection";
-// Import Shadcn components
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-
 import { BlockPanel } from "@/components/BlockPanel";
 import { ResizeHandle } from "@/components/ResizeHandle";
-
-// Add these imports at the top
 import {
     LayoutTemplate,
     Boxes,
@@ -34,11 +30,199 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import AILoadingAnimation from "@/components/ai-loading-animation";
-
-// Import Sonner toast
 import { toast } from "sonner";
-// Import createTask (ensure the import path is correct)
-import { createTask } from "@/server/createTask";
+// import { createTask } from "@/server/createTask";
+import { cn } from "@/lib/utils";
+
+interface ScrambleHoverProps {
+  text: string;
+  scrambleSpeed?: number;
+  maxIterations?: number;
+  sequential?: boolean;
+  revealDirection?: "start" | "end" | "center";
+  useOriginalCharsOnly?: boolean;
+  characters?: string;
+  className?: string;
+  scrambledClassName?: string;
+}
+
+const ScrambleHover: React.FC<ScrambleHoverProps> = ({
+  text,
+  scrambleSpeed = 50,
+  maxIterations = 10,
+  useOriginalCharsOnly = false,
+  characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+",
+  className,
+  scrambledClassName,
+  sequential = false,
+  revealDirection = "start",
+  ...props
+}) => {
+  const [displayText, setDisplayText] = useState(text);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isScrambling, setIsScrambling] = useState(false);
+  const [revealedIndices, setRevealedIndices] = useState(new Set<number>());
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    let currentIteration = 0;
+
+    const getNextIndex = () => {
+      const textLength = text.length;
+      switch (revealDirection) {
+        case "start":
+          return revealedIndices.size;
+        case "end":
+          return textLength - 1 - revealedIndices.size;
+        case "center":
+          const middle = Math.floor(textLength / 2);
+          const offset = Math.floor(revealedIndices.size / 2);
+          const nextIndex =
+            revealedIndices.size % 2 === 0
+              ? middle + offset
+              : middle - offset - 1;
+
+          if (
+            nextIndex >= 0 &&
+            nextIndex < textLength &&
+            !revealedIndices.has(nextIndex)
+          ) {
+            return nextIndex;
+          }
+
+          for (let i = 0; i < textLength; i++) {
+            if (!revealedIndices.has(i)) return i;
+          }
+          return 0;
+        default:
+          return revealedIndices.size;
+      }
+    };
+
+    const shuffleText = (text: string) => {
+      if (useOriginalCharsOnly) {
+        const positions = text.split("").map((char, i) => ({
+          char,
+          isSpace: char === " ",
+          index: i,
+          isRevealed: revealedIndices.has(i),
+        }));
+
+        const nonSpaceChars = positions
+          .filter((p) => !p.isSpace && !p.isRevealed)
+          .map((p) => p.char);
+
+        // Shuffle the remaining non-revealed, non-space characters
+        for (let i = nonSpaceChars.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [nonSpaceChars[i], nonSpaceChars[j]] = [
+            nonSpaceChars[j],
+            nonSpaceChars[i],
+          ];
+        }
+
+        let charIndex = 0;
+        return positions
+          .map((p) => {
+            if (p.isSpace) return " ";
+            if (p.isRevealed) return text[p.index];
+            return nonSpaceChars[charIndex++];
+          })
+          .join("");
+      } else {
+        const availableChars = useOriginalCharsOnly
+          ? Array.from(new Set(text.split(""))).filter((char) => char !== " ")
+          : characters.split("");
+        return text
+          .split("")
+          .map((char, i) => {
+            if (char === " ") return " ";
+            if (revealedIndices.has(i)) return text[i];
+            return availableChars[
+              Math.floor(Math.random() * availableChars.length)
+            ];
+          })
+          .join("");
+      }
+    };
+
+    if (isHovering) {
+      setIsScrambling(true);
+      interval = setInterval(() => {
+        if (sequential) {
+          if (revealedIndices.size < text.length) {
+            const nextIndex = getNextIndex();
+            setRevealedIndices((prev) => new Set(prev).add(nextIndex));
+            setDisplayText(shuffleText(text));
+          } else {
+            clearInterval(interval);
+            setIsScrambling(false);
+          }
+        } else {
+          setDisplayText(shuffleText(text));
+          currentIteration++;
+          if (currentIteration >= maxIterations) {
+            clearInterval(interval);
+            setIsScrambling(false);
+            setDisplayText(text);
+          }
+        }
+      }, scrambleSpeed);
+    } else {
+      setDisplayText(text);
+      setRevealedIndices(new Set());
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [
+    isHovering,
+    text,
+    characters,
+    scrambleSpeed,
+    useOriginalCharsOnly,
+    sequential,
+    revealDirection,
+    maxIterations,
+    revealedIndices,
+  ]);
+
+  // When the text value changes, auto-trigger the scramble effect.
+  useEffect(() => {
+    setIsHovering(true);
+    const timeout = setTimeout(() => {
+      setIsHovering(false);
+    }, scrambleSpeed * maxIterations);
+    return () => clearTimeout(timeout);
+  }, [text, scrambleSpeed, maxIterations]);
+
+  return (
+    <motion.span
+      onHoverStart={() => setIsHovering(true)}
+      onHoverEnd={() => setIsHovering(false)}
+      className={cn("inline-block whitespace-pre-wrap", className)}
+      {...props}
+    >
+      <span className="sr-only">{displayText}</span>
+      <span aria-hidden="true">
+        {displayText.split("").map((char, index) => (
+          <span
+            key={index}
+            className={cn(
+              revealedIndices.has(index) || !isScrambling || !isHovering
+                ? className
+                : scrambledClassName
+            )}
+          >
+            {char}
+          </span>
+        ))}
+      </span>
+    </motion.span>
+  );
+};
+
 
 export default function Home() {
     // Maintain nodes/edges state for React Flow.
@@ -138,7 +322,7 @@ export default function Home() {
             const dummyMessages = [
                 {
                     role: "user",
-                    content: "Generate a trading strategy with a start-block, a couple S and P stocks blocks , and a yield-block at the end."
+                    content: "Generate a trading strategy with a start-block, a couple S and P stocks blocks AND a couple of crypto blocks, and a yield-block at the end."
                 }
             ];
 

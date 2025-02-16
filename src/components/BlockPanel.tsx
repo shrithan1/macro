@@ -93,13 +93,6 @@ const categories: Category[] = [
   },
 ];
 
-// ----------------------------------------------------------------------
-// SimulatedPrice
-//
-// This component takes a basePrice and updates it at random intervals
-// by a random 1% delta (either positive or negative). Each update is
-// wrapped in our ScrambleHover so that the price change appears animated.
-// ----------------------------------------------------------------------
 const SimulatedPrice: React.FC<{ basePrice: number }> = ({ basePrice }) => {
   const [price, setPrice] = useState(basePrice);
 

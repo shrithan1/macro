@@ -475,7 +475,7 @@ export default function Home() {
     }, [selectedNode, setEdges]);
 
     return (
-        <div className="flex w-full h-screen pt-14">
+        <div className="flex w-full h-screen pt-14 suppressHydrationWarning">
             {/* Left Sidebar */}
             <div className="w-[60px] border-r border-border">
                 <ScrollArea className="h-full">

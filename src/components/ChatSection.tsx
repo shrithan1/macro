@@ -197,7 +197,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
         <div className="flex flex-col h-full bg-background border-l border-border overflow-y-hidden">
             {/* Example strategies section - only show when no messages */}
             {messages.length === 0 && (
-                <div className="p-4 border-b border-border">
+                <div className="p-4">
                     <h3 className="text-sm font-medium text-muted-foreground mb-3">Example Strategies</h3>
                     <div className="flex flex-wrap gap-2">
                         {exampleStrategies.map((strategy, index) => (

@@ -50,7 +50,6 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
         handleSubmit(e)
     }
 
-    // When rendering the AI response, wrap each word and support markdown:
     const renderMessage = (text: string) => {
         return (
             <ReactMarkdown
@@ -61,7 +60,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                             <WordWrapper
                                 key={index}
                                 {...wordWrapperProps}
-                                style={{ 
+                                style={{
                                     display: 'inline-block',
                                     marginRight: '0.25em',
                                     ...wordWrapperProps.style
@@ -99,15 +98,38 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
         );
     };
 
+    const handleCompileStrategy = async () => {
+        if (messages.length === 0) {
+            alert("No conversation to compile!");
+            return;
+        }
+    
+        try {
+            const response = await fetch('/api/agent/compile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ messages }),
+            });
+    
+            const data = await response.json();
+            console.log("Compiled Strategy:", data);
+            alert("Strategy compiled successfully! Check console for details.");
+        } catch (error) {
+            console.error("Error compiling strategy:", error);
+            alert("Error compiling strategy. Check console for details.");
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-background border-l border-border overflow-y-hidden">
             {/* Chat messages area */}
             <div className="flex-1 p-4 overflow-y-auto text-sm">
                 {messages.length > 0 ? (
                     messages.map((m) => (
-                        <div key={m.id} className={`whitespace-pre-wrap mb-4 ${
-                            m.role === "assistant" ? "bg-muted/50 rounded-lg p-3" : ""
-                        }`}>
+                        <div key={m.id} className={`whitespace-pre-wrap mb-4 ${m.role === "assistant" ? "bg-muted/50 rounded-lg p-3" : ""
+                            }`}>
                             <div className="font-semibold mb-1">
                                 {m.role === "user" ? "You: " : "Assistant: "}
                             </div>
@@ -143,9 +165,15 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
 
             {/* Chat input - sticky bottom */}
             <div className="sticky bottom-0 bg-background">
-                <Button variant="outline" className="absolute -top-8 right-4">
+                
+                <Button
+                    variant="outline"
+                    className="absolute -top-8 right-4"
+                    onClick={handleCompileStrategy}
+                >
                     Compile Strategy
                 </Button>
+
                 <TooltipProvider>
                     <form onSubmit={onSubmit} className="p-4 flex items-start justify-center">
                         <Card
@@ -160,9 +188,8 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                                         value={input}
                                         onChange={handleInputChange}
                                         onKeyDown={handleKeyDown}
-                                        className={`bg-transparent w-full outline-none resize-none overflow-hidden ${
-                                            input ? "text-black" : "text-[#dbdbdb]"
-                                        } placeholder-[#dbdbdb] focus:text-black`}
+                                        className={`bg-transparent w-full outline-none resize-none overflow-hidden ${input ? "text-black" : "text-[#dbdbdb]"
+                                            } placeholder-[#dbdbdb] focus:text-black`}
                                         placeholder="Message Macro"
                                         rows={1}
                                     />

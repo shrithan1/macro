@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import {Play, Pause, Loader, Square, User} from "lucide-react"
+import { Play, Pause, Loader, Square, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 import { MockFinanceTerminal } from "@/components/MockFinanceTerminal";
 
-const AGENT_SERVER_URL = process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
+const AGENT_SERVER_URL =
+  process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
 
 // Add these types at the top of the file
 interface Asset {
@@ -94,13 +95,13 @@ function DeployAgentButton() {
       // Add all responses to the messages
       for (const msg of data.messages) {
         setMessages((prev) => [...prev, `Agent: ${msg}`]);
-        
+
         // Create a task for the agent's response
         try {
-          await fetch('/api/create-task', {
-            method: 'POST',
+          await fetch("/api/create-task", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               timestamp: Date.now(),
@@ -115,10 +116,10 @@ function DeployAgentButton() {
                   agentMessage: msg,
                   source: "agent",
                   type: "response",
-                  inResponseTo: userInput
-                }
-              }
-            })
+                  inResponseTo: userInput,
+                },
+              },
+            }),
           });
         } catch (taskError) {
           console.error("Failed to create task for agent response:", taskError);
@@ -127,10 +128,10 @@ function DeployAgentButton() {
 
       // Create a task for the user's message
       try {
-        await fetch('/api/create-task', {
-          method: 'POST',
+        await fetch("/api/create-task", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             timestamp: Date.now(),
@@ -144,10 +145,10 @@ function DeployAgentButton() {
                 currentTime: Date.now(),
                 userMessage: userInput,
                 source: "user",
-                type: "message"
-              }
-            }
-          })
+                type: "message",
+              },
+            },
+          }),
         });
       } catch (taskError) {
         console.error("Failed to create task for user message:", taskError);
@@ -166,26 +167,19 @@ function DeployAgentButton() {
     }
   };
 
-  const sendPortfolioMessage = async () => {
+  const sendPortfolioMessage = async (strategy: string) => {
     // Get the saved portfolio data from localStorage
-    const savedPortfolioDataMessage = `Execute comprehensive market analysis:
-1. Fetch and report current price data for all available assets (AAPL, MSFT, NVIDIA, VOO, ABNB, ETH, USDC)
-2. Calculate and display the following metrics for each asset:
-   - current tokens held of each asset in the wallet
-   - current USD value of each asset in the wallet
-3. Risk assessment:
-   - Portfolio concentration metrics
-   - Sector exposure analysis
-   - Volatility indicators
-Do not execute any trades. This is a monitoring and analysis-only operation In the end say that you are done and that you have reported all the findings and that no trades are to be made for now.`;
+    const savedPortfolioDataMessage = strategy;
 
-    const updatedMessage = savedPortfolioDataMessage ? `${savedPortfolioDataMessage} Present findings in a clear, structured format with USD values and percentages where applicable.` : null;
+    const updatedMessage = savedPortfolioDataMessage
+      ? `${savedPortfolioDataMessage} Present findings in a clear, structured format with USD values and percentages where applicable.`
+      : null;
     const savedPortfolioData = JSON.stringify({
       instruction: updatedMessage,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
     if (!updatedMessage) {
-      console.error('No portfolio data found in localStorage');
+      console.error("No portfolio data found in localStorage");
       return;
     }
 
@@ -198,7 +192,7 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: savedPortfolioData
+          message: savedPortfolioData,
         }),
       });
 
@@ -242,14 +236,18 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
           {messages.length > 0 && (
             <div className="p-4 border rounded bg-gray-50 h-full overflow-auto">
               {messages.map((msg, i) => {
-                const isUser = msg.startsWith('You:');
-                const messageContent = msg.replace(/^(You:|Agent:)\s/, '');
-                
+                const isUser = msg.startsWith("You:");
+                const messageContent = msg.replace(/^(You:|Agent:)\s/, "");
+
                 return (
                   <div key={i}>
-                    <div className={`p-3 ${
-                      isUser ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
-                    } mb-2`}>
+                    <div
+                      className={`p-3 ${
+                        isUser
+                          ? "bg-blue-100 text-blue-900"
+                          : "bg-white text-gray-900"
+                      } mb-2`}
+                    >
                       <div className="flex items-start gap-2">
                         {isUser ? (
                           <User className="w-4 h-4 mt-1 flex-shrink-0" />
@@ -257,9 +255,7 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
                           <div className="size-4 mt-1 bg-[#180D68] flex-shrink-0" />
                         )}
                         <div className="font-medium prose prose-sm max-w-none">
-                          <ReactMarkdown>
-                            {messageContent}
-                          </ReactMarkdown>
+                          <ReactMarkdown>{messageContent}</ReactMarkdown>
                         </div>
                       </div>
                     </div>
@@ -334,7 +330,6 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
       <div className="col-span-1">
         <MockFinanceTerminal />
       </div>
-      
     </div>
   );
 }

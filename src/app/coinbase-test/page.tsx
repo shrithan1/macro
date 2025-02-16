@@ -107,13 +107,18 @@ function DeployAgentButton() {
 
   const sendPortfolioMessage = async () => {
     // Get the saved portfolio data from localStorage
-    const savedPortfolioData = localStorage.getItem('portfolioData');
-    if (!savedPortfolioData) {
+    // const savedPortfolioDataMessage = localStorage.getItem('portfolioData') || null;
+    const savedPortfolioDataMessage = 'If the price of AAPL stock is above 200$, check the USD value of your USDC and ETH holdings. If their USD values are not within 5% of each other, trade USDC for ETH until their USD values are approximately equal. If their USD values are already within 5% of each other, do not execute any trades.';
+    const updatedMessage = savedPortfolioDataMessage ? `${savedPortfolioDataMessage} Report the current USD values of both tokens before and after any trades.` : null;
+    const savedPortfolioData = JSON.stringify({
+      instruction: updatedMessage,
+      timestamp: Date.now()
+    });
+    if (!updatedMessage) {
       console.error('No portfolio data found in localStorage');
       return;
     }
 
-    setMessages((prev) => [...prev, `You: ${savedPortfolioData}`]);
     setLoading(true);
 
     try {
@@ -123,8 +128,7 @@ function DeployAgentButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: savedPortfolioData,
-          portfolioData: JSON.parse(savedPortfolioData)
+          message: savedPortfolioData
         }),
       });
 
@@ -156,7 +160,7 @@ function DeployAgentButton() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     } else {
-      intervalRef.current = setInterval(sendPortfolioMessage, 15000);
+      intervalRef.current = setInterval(sendPortfolioMessage, 25000);
     }
   };
 
@@ -175,10 +179,24 @@ function DeployAgentButton() {
       </div>
 
       {messages.length > 0 && (
-        <div className="mt-4 p-4 border rounded max-h-96 overflow-auto">
+        <div className="mt-4 p-4 border rounded max-h-96 overflow-auto bg-gray-50">
           {messages.map((msg, i) => (
-            <div key={i} className="mb-2">
-              {msg}
+            <div key={i}>
+              <div className={`p-3 rounded-lg ${
+                msg.startsWith('You:') ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
+              } mb-2 shadow-sm`}>
+                <div className="font-medium">
+                  {msg.startsWith('You:') ? '👤 ' : '🤖 '}
+                  {msg}
+                </div>
+              </div>
+              {i < messages.length - 1 && (
+                <div className="flex items-center justify-center my-3">
+                  <div className="h-px bg-gray-300 w-full"></div>
+                  <span className="px-2 text-gray-500 text-sm">•</span>
+                  <div className="h-px bg-gray-300 w-full"></div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -207,7 +225,7 @@ function DeployAgentButton() {
             disabled={loading}
             className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
           >
-            {intervalRef.current ? "Stop Sending" : "Start Sending"}
+            {intervalRef.current ? "Stop Strategy" : "Deploy Strategy"}
           </button>
         </div>
       )}

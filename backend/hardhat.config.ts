@@ -34,7 +34,8 @@ module.exports = {
     "base-mainnet": {
      url: 'https://mainnet.base.org',
      accounts: [PRIVATE_KEY],
-     gasPrice: 1000,
+     gasPrice: 500000,
+     gas: 3000000,
    },
    // for Base Sepolia testnet
    "base-sepolia": {

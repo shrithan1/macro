@@ -1,1 +1,1 @@
-{"walletId":"7d7c8607-eaae-4e5a-ba37-dfcf20647b94","seed":"602ae124f10282310e0dd3ceca6dfeccc6c5a33993bf8634caa3d0b245fc82d1","networkId":"base-mainnet"}
+{"walletId":"3057930d-67ff-414e-a3ae-fa9af1801b1b","seed":"9e666d7a16b7819b6ed29fb7f8414d20cd7f84e1ee536b13f3e617d3684e8be1","networkId":"base-mainnet"}

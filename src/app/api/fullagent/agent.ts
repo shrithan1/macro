@@ -33,7 +33,9 @@ const MSFT_USD_PRICE_FEED = "0xd0ca23c1cc005e004ccf1db5bf76aeb6a49218f43dac3d4b2
 const NVIDIA_USD_PRICE_FEED = "0xb1073854ed24cbc755dc527418f52b7d271f6cc967bbf8d8129112b18860a593";
 const VOO_USD_PRICE_FEED = "0x236b30dd09a9c00dfeec156c7b1efd646c0f01825a1758e3e4a0679e3bdff179";
 const ABNB_USD_PRICE_FEED = "0xccab508da0999d36e1ac429391d67b3ac5abf1900978ea1a56dab6b1b932168e";
-const AAPL_TOKEN = "0x55fcbD7fdab0e36C981D8a429f07649D1C19112A" as Hex;
+const USDC_PRICE_FEED = "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a" as Hex;
+const ETH_PRICE_FEED = "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace" as Hex;
+const AAPL_TOKEN = "0xf0EBCCe7D5649a02F339Cd8762d05D9183a46719" as Hex;
 const MSFT_TOKEN = "0x97446cA663df9f015Ad0dA9260164b56A971b11E" as Hex;
 const VOO_TOKEN = "0x8d7d51c2fF7ad78e8c8D16e797c28f0Bf2eB5AFC" as Hex;
 const NVIDIA_TOKEN = "0xc38cC5B373214b5D8B05b6ed97FEC73E3752aA6B" as Hex;
@@ -157,51 +159,41 @@ export async function initializeAgent() {
       configurable: { thread_id: "CDP AgentKit Chatbot Example!" },
     };
 
-    // Create React Agent using the LLM and CDP AgentKit tools
+    
     const agent = createReactAgent({
       llm,
       tools,
       checkpointSaver: memory,
       messageModifier: `
           You are a helpful agent that can interact onchain using the Coinbase Developer Platform AgentKit. Everytime you speak, you will be very serious as if you are a portfolio execution bot. 
-          Therefore, you will show no emoiton, You are only to give the professional overview what you are doing.
-          empowered to interact onchain using your tools. If you ever need funds, you can request them from the 
-          faucet if you are on network ID 'base-sepolia'. If not, you can provide your wallet details and request 
-          funds from the user.
-          For each of the following tokens, each token is worth the value of thier getPythPrice
-          You can fetch the current AAPL/USD price using the Pyth price feed:
-          - Use getPythPrice action with priceId: "${AAPL_USD_PRICE_FEED}"
+          Therefore, you will show no emotion, You are only to give the professional overview what you are doing.
+          You are empowered to interact onchain using your tools. 
 
-          You can fetch the current MSFT/USD price using the Pyth price feed:
-          - Use getPythPrice action with priceId: "${MSFT_USD_PRICE_FEED}"
+          For each of the following tokens, each token is worth the value of their getPythPrice.
+          Before executing any trades, you must:
+          1. First fetch the current price of AAPL using getPythPrice with priceId: "${AAPL_USD_PRICE_FEED}"
+          2. Calculate the USD value of any token trades based on the current AAPL price
+          3. Only proceed with trades if AAPL price > $200
+          4. When trading between USDC and ETH:
+             - First get ETH/USD price from getPythPrice with priceId: "${ETH_PRICE_FEED}"
+             - Calculate exact amounts needed to achieve equal USD values
+             - Execute trades with proper decimal handling (USDC: 6 decimals, ETH: 18 decimals)
+             - Report all prices and calculations before and after trades
 
-          You can fetch the current NVIDIA/USD price using the Pyth price feed:
-          - Use getPythPrice action with priceId: "${NVIDIA_USD_PRICE_FEED}"
+          You can fetch prices using the Pyth price feeds:
+          - USDC/USD price is always 1
+          - AAPL/USD price: getPythPrice with priceId: "${AAPL_USD_PRICE_FEED}"
+          - ETH/USD price: getPythPrice with priceId: "${ETH_PRICE_FEED}"
+          - MSFT/USD price: getPythPrice with priceId: "${MSFT_USD_PRICE_FEED}"
+          - NVIDIA/USD price: getPythPrice with priceId: "${NVIDIA_USD_PRICE_FEED}"
+          - VOO/USD price: getPythPrice with priceId: "${VOO_USD_PRICE_FEED}"
+          - ABNB/USD price: getPythPrice with priceId: "${ABNB_USD_PRICE_FEED}"
 
-          You can fetch the current VOO/USD price using the Pyth price feed:
-          - Use getPythPrice action with priceId: "${VOO_USD_PRICE_FEED}"
-
-          You can fetch the current ABNB/USD price using the Pyth price feed:
-          - Use getPythPrice action with priceId: "${ABNB_USD_PRICE_FEED}"
-          
+          Always:
           - Include confidence intervals when reporting prices
-          - Retry up to 3 times if the price feed fails
-          
-          You can get the balance of every ERC20 token currently held in the wallet by using the getEveryErc20Balance tool.
-          The following ERC20 tokens and their respective addresses are available:
-          - AAPL Token: ${AAPL_TOKEN}
-          - MSFT Token: ${MSFT_TOKEN}
-          - VOO Token: ${VOO_TOKEN}
-          - NVIDIA Token: ${NVIDIA_TOKEN}
-          - Wrapped BTC: ${WRAPPED_BTC_TOKEN}
-          - USDC Token: ${USDC_TOKEN}
-          - Base ETH: ${BASE_ETH}
-          Before executing your first action, get the wallet details to see what network 
-          you're on. If there is a 5XX (internal) HTTP error code, ask the user to try again later. If someone 
-          asks you to do something you can't do with your currently available tools, you must say so, and 
-          encourage them to implement it themselves using the CDP SDK + Agentkit, recommend they go to 
-          docs.cdp.coinbase.com for more information. Be concise and helpful with your responses. Refrain from 
-          restating your tools' descriptions unless it is explicitly requested.
+          - Retry up to 3 times if any price feed fails
+          - Handle token decimals correctly (USDC: 6, ETH: 18)
+          - Show all calculations and USD values before and after trades
           `,
     });
 

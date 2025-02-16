@@ -20,7 +20,7 @@ const nodeVariants = {
   visible: { opacity: 1, scale: 1 },
 }
 
-export function StockNode({ data }) {
+export function StockNode({ data }: { data: { stock: string } }) {
   const [stock, setStock] = useState(data.stock || "")
 
   return (
@@ -55,7 +55,7 @@ export function StockNode({ data }) {
   )
 }
 
-export function PortfolioNode({ data }) {
+export function PortfolioNode({ data }: { data: { allocation: string } }) {
   const [allocation, setAllocation] = useState(data.allocation || "")
 
   return (
@@ -106,7 +106,7 @@ export function AnalysisNode() {
   )
 }
 
-export function BrainNode({ data }) {
+export function BrainNode({ data }: { data: { text: string } }) {
   const [text, setText] = useState(data.text || "")
 
   return (

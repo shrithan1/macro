@@ -27,7 +27,8 @@ import {
     ChevronLeft,
     ChevronRight,
     Loader2,
-    Trash2
+    Trash2,
+    Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -37,7 +38,7 @@ import { toast } from "sonner";
 // import { createTask } from "@/server/createTask";
 import { cn } from "@/lib/utils";
 import { CustomNode } from '@/components/CustomNodes';
-
+import Link from "next/link";
 interface ScrambleHoverProps {
     text: string;
     scrambleSpeed?: number;
@@ -293,14 +294,14 @@ export default function Home() {
         const newNode = {
             id: Date.now().toString(),
             type: 'customNode',
-            data: { 
+            data: {
                 label: block.label,
                 logo: block.logo,
                 price: block.price
             },
-            position: { 
-                x: Math.random() * 400, 
-                y: Math.random() * 400 
+            position: {
+                x: Math.random() * 400,
+                y: Math.random() * 400
             }
         };
         setNodes((nds) => [...nds, newNode]);
@@ -563,6 +564,24 @@ export default function Home() {
                         {isCompiling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {isCompiling ? 'Compiling...' : 'Compile Strategy'}
                     </Button>
+
+
+
+                    <motion.div
+                        initial={{ opacity: 1, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="absolute top-4 right-44 z-10"
+                    >
+                        <Link href="/deploy-agent">
+                            <Button
+                                onClick={() => console.log("launch agent")}
+                                className="bg-[#180D68] hover:bg-[#180D68]/80 group"
+                            >
+                                <Sparkles className="animate-pulse mr-2 h-4 w-4 group-hover:-rotate-12 transition-all" />
+                                Launch Agent
+                            </Button>
+                        </Link>
+                    </motion.div>
 
                     {/* Clear Flow Button */}
                     <motion.div

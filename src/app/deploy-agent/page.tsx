@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {Play, Pause, Loader, Square, User} from "lucide-react"
 import { Input } from "@/components/ui/input";
 import ReactMarkdown from 'react-markdown';
+import { MockFinanceTerminal } from "@/components/MockFinanceTerminal";
 
 const AGENT_SERVER_URL = process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
 
@@ -246,14 +247,14 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
                 
                 return (
                   <div key={i}>
-                    <div className={`p-3 rounded-lg ${
+                    <div className={`p-3 ${
                       isUser ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
-                    } mb-2 shadow-sm`}>
+                    } mb-2`}>
                       <div className="flex items-start gap-2">
                         {isUser ? (
                           <User className="w-4 h-4 mt-1 flex-shrink-0" />
                         ) : (
-                          <Square className="w-4 h-4 mt-1 flex-shrink-0" />
+                          <div className="size-4 mt-1 bg-[#180D68] flex-shrink-0" />
                         )}
                         <div className="font-medium prose prose-sm max-w-none">
                           <ReactMarkdown>
@@ -324,11 +325,14 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
       </div>
 
       {/* Right side - Chart placeholder */}
-      <div className="border rounded-lg bg-gray-50 p-4 flex items-center justify-center overflow-auto">
+      {/* <div className="border rounded-lg bg-gray-50 p-4 flex items-center justify-center overflow-auto">
         <div className="text-gray-400 text-center">
           <p className="text-lg font-medium">Chart Coming Soon</p>
           <p className="text-sm">This area will display portfolio analytics and charts</p>
         </div>
+      </div> */}
+      <div className="col-span-1">
+        <MockFinanceTerminal />
       </div>
     </div>
   );

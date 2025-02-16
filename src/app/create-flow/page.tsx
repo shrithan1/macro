@@ -125,6 +125,57 @@ export default function Home() {
         }
     };
 
+    const handleCompileStrategy = useCallback(async () => {
+        // For demonstration purposes, we use some dummy messages.
+        // In a real app you might pass conversation data from ChatSection.
+        const dummyMessages = [
+            {
+                role: "user",
+                content: "Generate a trading strategy with a start-block, a MSFT block, and a yield-block."
+            }
+        ];
+        try {
+            const response = await fetch('/api/agent/compile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages: dummyMessages })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Compilation failed with status ${response.status}`);
+            }
+
+            const compiledData = await response.json();
+            // The expected structured JSON should have the keys: blocks, connections, metadata.
+            // Convert each block into a React Flow node.
+            const newNodes = compiledData.blocks.map((block: any) => ({
+                id: block.id,
+                position: block.position,
+                // Here you can map block type to a custom node type if needed.
+                // For simplicity we are using the default type.
+                type: "default",
+                data: { label: block.type, config: block.config }
+            }));
+
+            // Convert each connection into a React Flow edge.
+            const newEdges = compiledData.connections.map((conn: any) => ({
+                id: `edge-${conn.from}-${conn.to}`,
+                source: conn.from,
+                target: conn.to,
+                type: "default"
+            }));
+
+            // Update the React Flow canvas with the new nodes and edges.
+            setNodes(newNodes);
+            setEdges(newEdges);
+        } catch (error) {
+            console.error('Error compiling strategy:', error);
+            alert('Error compiling strategy. Check console for details.');
+        }
+    }, [setNodes, setEdges]);
+
     return (
         <div className="flex w-full h-screen pt-14">
             {/* Left Sidebar */}
@@ -209,6 +260,9 @@ export default function Home() {
 
                 {/* React Flow Canvas */}
                 <div style={{ width: `${100 - chatWidth}%` }} className="relative">
+                    <Button onClick={handleCompileStrategy} className="absolute top-4 right-4 z-10">
+                        Compile Strategy
+                    </Button>
                     <ReactFlowProvider>
                         <ReactFlow
                             nodes={nodes}

@@ -16,40 +16,86 @@ interface ChatSectionProps {
 
 // Add new chat component
 export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionProps) {
-    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-        api: '/api/agent/chat',
-        maxSteps: 5,
-    });
-
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const cardRef = useRef<HTMLDivElement>(null)
+    const [messages, setMessages] = useState<any[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
     const [isCompiling, setIsCompiling] = useState(false);
 
     // Adjust textarea height on input change
     useEffect(() => {
         if (textareaRef.current) {
-            textareaRef.current.style.height = "auto"
-            textareaRef.current.style.height = textareaRef.current.scrollHeight + "px"
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
         }
-    }, [input])
+    }, [input]);
 
-    const handleCardClick = (e: React.MouseEvent) => {
-        if (textareaRef.current && !textareaRef.current.contains(e.target as Node)) {
-            textareaRef.current.focus()
+    const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setInput(e.target.value);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+
+        setMessages(prev => [...prev, { role: 'user', content: input, id: Date.now() }]);
+        setIsLoading(true);
+        const currentInput = input;
+        setInput('');
+
+        try {
+            const response = await fetch('http://localhost:3000/api/research', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: currentInput,
+                    breadth: 1,
+                    depth: 1,
+                    answers: ["whatever you think is best is good", "do everything on your own;do not ask any more follow ups"]
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Research request failed');
+            }
+
+            const data = await response.json();
+            
+            // Add the research response to messages
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: data.report || data.message || 'Research completed',
+                id: Date.now(),
+                toolInvocations: data.results || []
+            }]);
+
+        } catch (error) {
+            console.error('Research error:', error);
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: 'Sorry, there was an error processing your request.',
+                id: Date.now()
+            }]);
+        } finally {
+            setIsLoading(false);
         }
-    }
+    };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey && input.trim().length > 0) {
-            e.preventDefault()
-            handleSubmit(e as any)
+            e.preventDefault();
+            handleSubmit(e);
         }
-    }
+    };
 
-    const onSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        handleSubmit(e)
-    }
+    const handleCardClick = (e: React.MouseEvent) => {
+        if (textareaRef.current && !textareaRef.current.contains(e.target as Node)) {
+            textareaRef.current.focus();
+        }
+    };
 
     const renderMessage = (text: string) => {
         return (
@@ -181,7 +227,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                 </Button>
 
                 <TooltipProvider>
-                    <form onSubmit={onSubmit} className="p-4 flex items-start justify-center">
+                    <form onSubmit={handleSubmit} className="p-4 flex items-start justify-center">
                         <Card
                             ref={cardRef}
                             className="w-full max-w-3xl border-[#dbdbdb] shadow-none cursor-text"

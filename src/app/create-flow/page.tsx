@@ -126,12 +126,12 @@ export default function Home() {
     };
 
     const handleCompileStrategy = useCallback(async () => {
-        // For demonstration purposes, we use some dummy messages.
+
         // In a real app you might pass conversation data from ChatSection.
         const dummyMessages = [
             {
                 role: "user",
-                content: "Generate a trading strategy with a start-block, a MSFT block, and a yield-block."
+                content: "Generate a trading strategy with a start-block, a couple S and P stocks blocks , and a yield-block at the end."
             }
         ];
         try {

@@ -4,7 +4,7 @@ import React from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from 'react-markdown';
-import { Plus, TelescopeIcon as Binoculars, AudioWaveformIcon as WaveformIcon, PlayIcon } from "lucide-react"
+import { Plus, TelescopeIcon as Binoculars, AudioWaveformIcon as WaveformIcon, PlayIcon, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useState, useRef, useEffect } from "react"
@@ -23,6 +23,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const cardRef = useRef<HTMLDivElement>(null)
+    const [isCompiling, setIsCompiling] = useState(false);
 
     // Adjust textarea height on input change
     useEffect(() => {
@@ -50,7 +51,6 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
         handleSubmit(e)
     }
 
-    // When rendering the AI response, wrap each word and support markdown:
     const renderMessage = (text: string) => {
         return (
             <ReactMarkdown
@@ -61,7 +61,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                             <WordWrapper
                                 key={index}
                                 {...wordWrapperProps}
-                                style={{ 
+                                style={{
                                     display: 'inline-block',
                                     marginRight: '0.25em',
                                     ...wordWrapperProps.style
@@ -99,29 +99,87 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
         );
     };
 
+    const handleCompileStrategy = async () => {
+        if (messages.length === 0) {
+            alert("No conversation to compile!");
+            return;
+        }
+    
+        setIsCompiling(true);
+        try {
+            const response = await fetch('/api/agent/compile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ messages }),
+            });
+    
+            const data = await response.json();
+            console.log("Compiled Strategy:", data);
+            alert("Strategy compiled successfully! Check console for details.");
+        } catch (error) {
+            console.error("Error compiling strategy:", error);
+            alert("Error compiling strategy. Check console for details.");
+        } finally {
+            setIsCompiling(false);
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-background border-l border-border overflow-y-hidden">
             {/* Chat messages area */}
             <div className="flex-1 p-4 overflow-y-auto text-sm">
-                {messages.map((m) => (
-                    <div key={m.id} className={`whitespace-pre-wrap mb-4 ${
-                        m.role === "assistant" ? "bg-muted/50 rounded-lg p-3" : ""
-                    }`}>
-                        <div className="font-semibold mb-1">
-                            {m.role === "user" ? "You: " : "Assistant: "}
+                {messages.length > 0 ? (
+                    messages.map((m) => (
+                        <div key={m.id} className={`whitespace-pre-wrap mb-4 ${m.role === "assistant" ? "bg-muted/50 rounded-lg p-3" : ""
+                            }`}>
+                            <div className="font-semibold mb-1">
+                                {m.role === "user" ? "You: " : "Assistant: "}
+                            </div>
+                            {renderMessage(m.content)}
+                            {m.toolInvocations && (
+                                <pre className="mt-2 text-sm bg-muted p-2 rounded">
+                                    {JSON.stringify(m.toolInvocations, null, 2)}
+                                </pre>
+                            )}
                         </div>
-                        {renderMessage(m.content)}
-                        {m.toolInvocations && (
-                            <pre className="mt-2 text-sm bg-muted p-2 rounded">
-                                {JSON.stringify(m.toolInvocations, null, 2)}
-                            </pre>
-                        )}
+                    ))
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {/* <div className="w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div>
+                        <div className="hidden sm:block w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div>
+                        <div className="hidden md:block w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div>
+                        <div className="hidden lg:block w-[150px] h-[10px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div> */}
                     </div>
-                ))}
+                )}
             </div>
 
             {/* Chat input - sticky bottom */}
             <div className="sticky bottom-0 bg-background">
+                
+                <Button
+                    variant="outline"
+                    className="absolute -top-8 right-4"
+                    onClick={handleCompileStrategy}
+                    disabled={isCompiling}
+                >
+                    {isCompiling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isCompiling ? 'Compiling...' : 'Compile Strategy'}
+                </Button>
+
                 <TooltipProvider>
                     <form onSubmit={onSubmit} className="p-4 flex items-start justify-center">
                         <Card
@@ -136,9 +194,8 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                                         value={input}
                                         onChange={handleInputChange}
                                         onKeyDown={handleKeyDown}
-                                        className={`bg-transparent w-full outline-none resize-none overflow-hidden ${
-                                            input ? "text-black" : "text-[#dbdbdb]"
-                                        } placeholder-[#dbdbdb] focus:text-black`}
+                                        className={`bg-transparent w-full outline-none resize-none overflow-hidden ${input ? "text-black" : "text-[#dbdbdb]"
+                                            } placeholder-[#dbdbdb] focus:text-black`}
                                         placeholder="Message Macro"
                                         rows={1}
                                     />

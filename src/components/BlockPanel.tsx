@@ -1,41 +1,11 @@
 "use client";
 "use strict";
 
-async function fetchStockPrice(symbol: string) {
-  try {
-    const response = await fetch(
-      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=BW94SPC39ZMD606D`
-    );
-
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-
-    const data = await response.json();
-    console.log(data);
-    const assetPrice = data["Global Quote"]?.["05. price"];
-
-    if (assetPrice) {
-      console.log(`IBM Stock Price: $${assetPrice}`);
-      return assetPrice;
-    } else {
-      console.error("Price not found in response");
-      return null;
-    }
-  } catch (error) {
-    console.error("Fetch error:", error);
-    return null;
-  }
-}
-
-// Usage
-const msftPrice = fetchStockPrice("MSFT");
-const aaplPrice = fetchStockPrice("AAPL");
-const nvdaPrice = fetchStockPrice("NVDA");
-
 import Image from "next/image";
-import React, { useState } from "react";
-interface Block {
+import React, { useState, useEffect } from "react";
+import ScrambleHover from "@/components/ScrambleHover";
+
+export interface Block {
   id: string;
   logo: string;
   label: string;
@@ -43,13 +13,13 @@ interface Block {
   category: string;
 }
 
-interface Category {
+export interface Category {
   name: string;
   change: string;
   blocks: Block[];
 }
 
-interface BlockPanelProps {
+export interface BlockPanelProps {
   onAddBlock: (block: Block) => void;
 }
 
@@ -62,21 +32,21 @@ const categories: Category[] = [
         id: "1",
         logo: "/block_logos/MSFT.png",
         label: "MSFT",
-        price: msftPrice,
+        price: "408.43",
         category: "Stocks",
       },
       {
         id: "2",
         logo: "/block_logos/apple.png",
         label: "AAPL",
-        price: aaplPrice,
+        price: "244.60",
         category: "Stocks",
       },
       {
         id: "3",
         logo: "/block_logos/nvidia.png",
         label: "NVDA",
-        price: nvdaPrice,
+        price: "138.35",
         category: "Stocks",
       },
     ],
@@ -89,7 +59,7 @@ const categories: Category[] = [
         id: "4",
         logo: "/block_logos/voo1.png",
         label: "VOO",
-        price: "100",
+        price: "560.69",
         category: "S&P",
       },
     ],
@@ -102,14 +72,14 @@ const categories: Category[] = [
         id: "5",
         logo: "/block_logos/ethereum.png",
         label: "ETH",
-        price: "3500",
+        price: "2713.19",
         category: "BigCrypto",
       },
       {
         id: "6",
         logo: "/block_logos/bitcoin1.png",
         label: "BTC",
-        price: "100000",
+        price: "97349.81",
         category: "BigCrypto",
       },
       {
@@ -123,14 +93,41 @@ const categories: Category[] = [
   },
 ];
 
+// ----------------------------------------------------------------------
+// SimulatedPrice
+//
+// This component takes a basePrice and updates it at random intervals
+// by a random 1% delta (either positive or negative). Each update is
+// wrapped in our ScrambleHover so that the price change appears animated.
+// ----------------------------------------------------------------------
+const SimulatedPrice: React.FC<{ basePrice: number }> = ({ basePrice }) => {
+  const [price, setPrice] = useState(basePrice);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    const updatePrice = () => {
+      setPrice((prevPrice) => {
+        const randomFactor = Math.random() * 0.01; // up to 1%
+        const sign = Math.random() < 0.5 ? 1 : -1;
+        const updatedPrice = prevPrice * (1 + sign * randomFactor);
+        return Math.round(updatedPrice * 100) / 100;
+      });
+      const nextDelay = Math.random() * 4000 + 1000; // random delay between 1-5 seconds
+      timeout = setTimeout(updatePrice, nextDelay);
+    };
+
+    timeout = setTimeout(updatePrice, Math.random() * 4000 + 1000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return <ScrambleHover text={price.toFixed(2)} />;
+};
+
 export function BlockPanel({ onAddBlock }: BlockPanelProps) {
-  const [loading, setLoading] = useState(true);
-  // const blocks: Block[] = [
-  //   {
-  //     id: "1",
   return (
-    <div className="p-4 bg-white">
-      <h3 className="mb-4 text-xl font-semibold">Available Assets</h3>
+    <div className="p-4 bg-white space-y-4">
+      <h3 className="mb-2 text-xl font-normal">Available Assets</h3>
       {categories.map((category) => (
         <div key={category.name} className="space-y-2">
           <div className="flex items-center mb-2 mt-2">
@@ -143,7 +140,7 @@ export function BlockPanel({ onAddBlock }: BlockPanelProps) {
             <button
               key={block.id}
               onClick={() => onAddBlock(block)}
-              className="w-full flex justify-between items-center px-2 border border-gray-200 py-2 text-sm text-left rounded-0 hover:bg-gray-100"
+              className="w-full flex justify-between items-center px-2 border border-gray-200 py-2 text-sm text-left rounded hover:bg-gray-100"
             >
               <div className="flex items-center">
                 <Image
@@ -152,12 +149,13 @@ export function BlockPanel({ onAddBlock }: BlockPanelProps) {
                   className="w-6 h-6 mr-2"
                   width={20}
                   height={20}
-                  onLoad={() => setLoading(false)}
                 />
                 <span>{block.label}</span>
               </div>
               <div className="ml-auto">
-                <span className="font-normal">${block.price}</span>
+                <span className="font-normal">
+                  $<SimulatedPrice basePrice={parseFloat(block.price)} />
+                </span>
               </div>
             </button>
           ))}

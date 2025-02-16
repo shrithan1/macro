@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
     ReactFlowProvider,
     ReactFlow,
@@ -12,14 +12,10 @@ import {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { ChatSection } from "@/components/ChatSection";
-// Import Shadcn components
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-
 import { BlockPanel } from "@/components/BlockPanel";
 import { ResizeHandle } from "@/components/ResizeHandle";
-
-// Add these imports at the top
 import {
     LayoutTemplate,
     Boxes,
@@ -27,12 +23,206 @@ import {
     Save,
     Play,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import AILoadingAnimation from "@/components/ai-loading-animation";
+import { toast } from "sonner";
+// import { createTask } from "@/server/createTask";
+import { cn } from "@/lib/utils";
+
+interface ScrambleHoverProps {
+  text: string;
+  scrambleSpeed?: number;
+  maxIterations?: number;
+  sequential?: boolean;
+  revealDirection?: "start" | "end" | "center";
+  useOriginalCharsOnly?: boolean;
+  characters?: string;
+  className?: string;
+  scrambledClassName?: string;
+}
+
+const ScrambleHover: React.FC<ScrambleHoverProps> = ({
+  text,
+  scrambleSpeed = 50,
+  maxIterations = 10,
+  useOriginalCharsOnly = false,
+  characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+",
+  className,
+  scrambledClassName,
+  sequential = false,
+  revealDirection = "start",
+  ...props
+}) => {
+  const [displayText, setDisplayText] = useState(text);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isScrambling, setIsScrambling] = useState(false);
+  const [revealedIndices, setRevealedIndices] = useState(new Set<number>());
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    let currentIteration = 0;
+
+    const getNextIndex = () => {
+      const textLength = text.length;
+      switch (revealDirection) {
+        case "start":
+          return revealedIndices.size;
+        case "end":
+          return textLength - 1 - revealedIndices.size;
+        case "center":
+          const middle = Math.floor(textLength / 2);
+          const offset = Math.floor(revealedIndices.size / 2);
+          const nextIndex =
+            revealedIndices.size % 2 === 0
+              ? middle + offset
+              : middle - offset - 1;
+
+          if (
+            nextIndex >= 0 &&
+            nextIndex < textLength &&
+            !revealedIndices.has(nextIndex)
+          ) {
+            return nextIndex;
+          }
+
+          for (let i = 0; i < textLength; i++) {
+            if (!revealedIndices.has(i)) return i;
+          }
+          return 0;
+        default:
+          return revealedIndices.size;
+      }
+    };
+
+    const shuffleText = (text: string) => {
+      if (useOriginalCharsOnly) {
+        const positions = text.split("").map((char, i) => ({
+          char,
+          isSpace: char === " ",
+          index: i,
+          isRevealed: revealedIndices.has(i),
+        }));
+
+        const nonSpaceChars = positions
+          .filter((p) => !p.isSpace && !p.isRevealed)
+          .map((p) => p.char);
+
+        // Shuffle the remaining non-revealed, non-space characters
+        for (let i = nonSpaceChars.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [nonSpaceChars[i], nonSpaceChars[j]] = [
+            nonSpaceChars[j],
+            nonSpaceChars[i],
+          ];
+        }
+
+        let charIndex = 0;
+        return positions
+          .map((p) => {
+            if (p.isSpace) return " ";
+            if (p.isRevealed) return text[p.index];
+            return nonSpaceChars[charIndex++];
+          })
+          .join("");
+      } else {
+        const availableChars = useOriginalCharsOnly
+          ? Array.from(new Set(text.split(""))).filter((char) => char !== " ")
+          : characters.split("");
+        return text
+          .split("")
+          .map((char, i) => {
+            if (char === " ") return " ";
+            if (revealedIndices.has(i)) return text[i];
+            return availableChars[
+              Math.floor(Math.random() * availableChars.length)
+            ];
+          })
+          .join("");
+      }
+    };
+
+    if (isHovering) {
+      setIsScrambling(true);
+      interval = setInterval(() => {
+        if (sequential) {
+          if (revealedIndices.size < text.length) {
+            const nextIndex = getNextIndex();
+            setRevealedIndices((prev) => new Set(prev).add(nextIndex));
+            setDisplayText(shuffleText(text));
+          } else {
+            clearInterval(interval);
+            setIsScrambling(false);
+          }
+        } else {
+          setDisplayText(shuffleText(text));
+          currentIteration++;
+          if (currentIteration >= maxIterations) {
+            clearInterval(interval);
+            setIsScrambling(false);
+            setDisplayText(text);
+          }
+        }
+      }, scrambleSpeed);
+    } else {
+      setDisplayText(text);
+      setRevealedIndices(new Set());
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [
+    isHovering,
+    text,
+    characters,
+    scrambleSpeed,
+    useOriginalCharsOnly,
+    sequential,
+    revealDirection,
+    maxIterations,
+    revealedIndices,
+  ]);
+
+  // When the text value changes, auto-trigger the scramble effect.
+  useEffect(() => {
+    setIsHovering(true);
+    const timeout = setTimeout(() => {
+      setIsHovering(false);
+    }, scrambleSpeed * maxIterations);
+    return () => clearTimeout(timeout);
+  }, [text, scrambleSpeed, maxIterations]);
+
+  return (
+    <motion.span
+      onHoverStart={() => setIsHovering(true)}
+      onHoverEnd={() => setIsHovering(false)}
+      className={cn("inline-block whitespace-pre-wrap", className)}
+      {...props}
+    >
+      <span className="sr-only">{displayText}</span>
+      <span aria-hidden="true">
+        {displayText.split("").map((char, index) => (
+          <span
+            key={index}
+            className={cn(
+              revealedIndices.has(index) || !isScrambling || !isHovering
+                ? className
+                : scrambledClassName
+            )}
+          >
+            {char}
+          </span>
+        ))}
+      </span>
+    </motion.span>
+  );
+};
+
 
 export default function Home() {
     // Maintain nodes/edges state for React Flow.
@@ -41,6 +231,49 @@ export default function Home() {
     const [isBlockPanelOpen, setIsBlockPanelOpen] = useState(true);
     const [chatWidth, setChatWidth] = useState(50); // percentage
     const [isLoading, setIsLoading] = useState(false);
+    const [isCompiling, setIsCompiling] = useState(false);
+    const [flowName, setFlowName] = useState("My Flow");
+
+    // Load saved flow data on component mount
+    useEffect(() => {
+        const savedFlow = localStorage.getItem('currentFlow');
+        if (savedFlow) {
+            const flowData = JSON.parse(savedFlow);
+            setNodes(flowData.nodes || []);
+            setEdges(flowData.edges || []);
+            setFlowName(flowData.name || "My Flow");
+        }
+    }, []);
+
+    // Save flow data whenever it changes
+    useEffect(() => {
+        const flowData = {
+            nodes,
+            edges,
+            name: flowName,
+            lastModified: new Date().toISOString()
+        };
+        localStorage.setItem('currentFlow', JSON.stringify(flowData));
+    }, [nodes, edges, flowName]);
+
+    const handleSaveFlow = useCallback(() => {
+        const flowData = {
+            nodes,
+            edges,
+            name: flowName,
+            lastModified: new Date().toISOString()
+        };
+        
+        // Save to current flow
+        localStorage.setItem('currentFlow', JSON.stringify(flowData));
+        
+        // Save to flow history
+        const flowHistory = JSON.parse(localStorage.getItem('flowHistory') || '[]');
+        flowHistory.push(flowData);
+        localStorage.setItem('flowHistory', JSON.stringify(flowHistory));
+        
+        toast.success('Flow saved successfully!');
+    }, [nodes, edges, flowName]);
 
     const handleResize = useCallback((delta: number) => {
         setChatWidth((prev) => {
@@ -53,7 +286,6 @@ export default function Home() {
         const newNode = {
             id: Date.now().toString(),
             data: { label: block.label },
-            // using a fixed position.
             position: { x: 250, y: 250 }
         };
         setNodes((nds) => [...nds, newNode]);
@@ -119,11 +351,76 @@ export default function Home() {
 
             const result = await response.json();
             console.log('API Response:', result);
-            
+
         } catch (error) {
             console.error('Error sending portfolio data:', error);
         }
     };
+
+    const handleCompileStrategy = useCallback(async () => {
+        setIsCompiling(true);
+        try {
+            const dummyMessages = [
+                {
+                    role: "user",
+                    content: "Generate a trading strategy with a start-block, an AAPL block, a VOO block, an NVDA block, an MSFT block, and an ETH and USDC block at the end."
+                }
+            ];
+
+
+
+            const response = await fetch('/api/agent/compile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages: dummyMessages })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Compilation failed with status ${response.status}`);
+            }
+
+            const compiledData = await response.json();
+            const newNodes = compiledData.blocks.map((block: any) => ({
+                id: block.id,
+                position: block.position,
+                type: "default",
+                data: { label: block.type, config: block.config }
+            }));
+
+            const newEdges = compiledData.connections.map((conn: any) => ({
+                id: `edge-${conn.from}-${conn.to}`,
+                source: conn.from,
+                target: conn.to,
+                type: "default"
+            }));
+
+            setNodes(newNodes);
+            setEdges(newEdges);
+
+            // Call the API route instead of createTask directly
+            const taskResponse = await fetch('/api/create-task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(compiledData)
+            });
+
+            if (!taskResponse.ok) {
+                throw new Error('Failed to create task');
+            }
+
+            const result = await taskResponse.json();
+            toast.success(`Task created successfully with transaction hash: ${result.transactionHash}`);
+        } catch (error: any) {
+            console.error('Error compiling strategy:', error);
+            toast.error('Error compiling strategy. Check console for details.');
+        } finally {
+            setIsCompiling(false);
+        }
+    }, [setNodes, setEdges]);
 
     return (
         <div className="flex w-full h-screen pt-14">
@@ -189,7 +486,7 @@ export default function Home() {
                     {isLoading ? (
                         <AILoadingAnimation message="Macro is thinking..." />
                     ) : (
-                        <ChatSection 
+                        <ChatSection
                             WordWrapper={motion.span}
                             wordWrapperProps={{
                                 initial: { filter: "blur(8px)" },
@@ -199,16 +496,21 @@ export default function Home() {
                         />
                     )}
                 </div>
-
-                {/* <Button onClick={handleSendJson}>
-                    Sending Json
-                </Button> */}
-
+                {/* handleClickJson ts */}
+                
                 {/* Resize Handle */}
                 <ResizeHandle onResize={handleResize} />
 
                 {/* React Flow Canvas */}
                 <div style={{ width: `${100 - chatWidth}%` }} className="relative">
+                    <Button
+                        onClick={handleCompileStrategy}
+                        className="absolute top-4 right-4 z-10"
+                        disabled={isCompiling}
+                    >
+                        {isCompiling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isCompiling ? 'Compiling...' : 'Compile Strategy'}
+                    </Button>
                     <ReactFlowProvider>
                         <ReactFlow
                             nodes={nodes}
@@ -233,7 +535,7 @@ export default function Home() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsBlockPanelOpen(!isBlockPanelOpen)}
-                        className="absolute right-0 top-4 z-10"
+                        className="absolute right-3 top-3 z-10"
                     >
                         {isBlockPanelOpen ? (
                             <ChevronRight className="h-4 w-4" />
@@ -241,7 +543,7 @@ export default function Home() {
                             <ChevronLeft className="h-4 w-4" />
                         )}
                     </Button>
-                    
+
                     {isBlockPanelOpen && (
                         <BlockPanel onAddBlock={handleAddBlock} />
                     )}

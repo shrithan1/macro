@@ -11,7 +11,6 @@ import {
 import { useAnimationFrame } from "motion/react"
 
 import { cn } from "@/lib/utils"
-import {useMousePosition}  from "@/hooks/use-mouse-position-ref"
 
 interface FloatingContextType {
   registerElement: (id: string, element: HTMLDivElement, depth: number) => void
@@ -45,8 +44,7 @@ const Floating = ({
       }
     >()
   )
-  const mousePositionRef = useMousePosition(containerRef as React.RefObject<HTMLElement>)
-
+  
   const registerElement = useCallback(
     (id: string, element: HTMLDivElement, depth: number) => {
       elementsMap.current.set(id, {
@@ -69,8 +67,8 @@ const Floating = ({
       const strength = (data.depth * sensitivity) / 20
 
       // Calculate new target position
-      const newTargetX = mousePositionRef.x * strength
-      const newTargetY = mousePositionRef.y * strength
+      const newTargetX = mousePositionRef.current.x * strength
+      const newTargetY = mousePositionRef.current.y * strength
 
       // Check if we need to update
       const dx = newTargetX - data.currentPosition.x
@@ -120,6 +118,8 @@ export const FloatingElement = ({
     const nonNullDepth = depth ?? 0.01
 
     context.registerElement(idRef.current, elementRef.current, nonNullDepth)
+    return () => context.unregisterElement(idRef.current)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => context.unregisterElement(idRef.current)
   }, [context, depth])

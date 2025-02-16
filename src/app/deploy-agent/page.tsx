@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import {Play, Pause, Loader} from "lucide-react"
+import {Play, Pause, Loader, Square, User} from "lucide-react"
 import { Input } from "@/components/ui/input";
+import ReactMarkdown from 'react-markdown';
 
 const AGENT_SERVER_URL = process.env.NEXT_PUBLIC_AGENT_SERVER_URL || "http://localhost:3001";
 
@@ -239,25 +240,38 @@ Do not execute any trades. This is a monitoring and analysis-only operation In t
         <div className="flex-1 overflow-auto">
           {messages.length > 0 && (
             <div className="p-4 border rounded bg-gray-50 h-full overflow-auto">
-              {messages.map((msg, i) => (
-                <div key={i}>
-                  <div className={`p-3 rounded-lg ${
-                    msg.startsWith('You:') ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
-                  } mb-2 shadow-sm`}>
-                    <div className="font-medium">
-                      {msg.startsWith('You:') ? '👤 ' : '🤖 '}
-                      {msg}
+              {messages.map((msg, i) => {
+                const isUser = msg.startsWith('You:');
+                const messageContent = msg.replace(/^(You:|Agent:)\s/, '');
+                
+                return (
+                  <div key={i}>
+                    <div className={`p-3 rounded-lg ${
+                      isUser ? 'bg-blue-100 text-blue-900' : 'bg-white text-gray-900'
+                    } mb-2 shadow-sm`}>
+                      <div className="flex items-start gap-2">
+                        {isUser ? (
+                          <User className="w-4 h-4 mt-1 flex-shrink-0" />
+                        ) : (
+                          <Square className="w-4 h-4 mt-1 flex-shrink-0" />
+                        )}
+                        <div className="font-medium prose prose-sm max-w-none">
+                          <ReactMarkdown>
+                            {messageContent}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
                     </div>
+                    {i < messages.length - 1 && (
+                      <div className="flex items-center justify-center my-3">
+                        <div className="h-px bg-gray-300 w-full"></div>
+                        <span className="px-2 text-gray-500 text-sm">•</span>
+                        <div className="h-px bg-gray-300 w-full"></div>
+                      </div>
+                    )}
                   </div>
-                  {i < messages.length - 1 && (
-                    <div className="flex items-center justify-center my-3">
-                      <div className="h-px bg-gray-300 w-full"></div>
-                      <span className="px-2 text-gray-500 text-sm">•</span>
-                      <div className="h-px bg-gray-300 w-full"></div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

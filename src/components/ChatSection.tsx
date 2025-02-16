@@ -103,25 +103,49 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
         <div className="flex flex-col h-full bg-background border-l border-border overflow-y-hidden">
             {/* Chat messages area */}
             <div className="flex-1 p-4 overflow-y-auto text-sm">
-                {messages.map((m) => (
-                    <div key={m.id} className={`whitespace-pre-wrap mb-4 ${
-                        m.role === "assistant" ? "bg-muted/50 rounded-lg p-3" : ""
-                    }`}>
-                        <div className="font-semibold mb-1">
-                            {m.role === "user" ? "You: " : "Assistant: "}
+                {messages.length > 0 ? (
+                    messages.map((m) => (
+                        <div key={m.id} className={`whitespace-pre-wrap mb-4 ${
+                            m.role === "assistant" ? "bg-muted/50 rounded-lg p-3" : ""
+                        }`}>
+                            <div className="font-semibold mb-1">
+                                {m.role === "user" ? "You: " : "Assistant: "}
+                            </div>
+                            {renderMessage(m.content)}
+                            {m.toolInvocations && (
+                                <pre className="mt-2 text-sm bg-muted p-2 rounded">
+                                    {JSON.stringify(m.toolInvocations, null, 2)}
+                                </pre>
+                            )}
                         </div>
-                        {renderMessage(m.content)}
-                        {m.toolInvocations && (
-                            <pre className="mt-2 text-sm bg-muted p-2 rounded">
-                                {JSON.stringify(m.toolInvocations, null, 2)}
-                            </pre>
-                        )}
+                    ))
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div>
+                        <div className="hidden sm:block w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div>
+                        <div className="hidden md:block w-[150px] h-[150px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div>
+                        <div className="hidden lg:block w-[150px] h-[10px] bg-muted/50 rounded-lg p-4 animate-pulse">
+                            <div className="h-4 w-2/3 bg-muted mb-2 rounded"></div>
+                            <div className="h-4 w-1/2 bg-muted rounded"></div>
+                        </div>
                     </div>
-                ))}
+                )}
             </div>
 
             {/* Chat input - sticky bottom */}
             <div className="sticky bottom-0 bg-background">
+                <Button variant="outline" className="absolute -top-8 right-4">
+                    Compile Strategy
+                </Button>
                 <TooltipProvider>
                     <form onSubmit={onSubmit} className="p-4 flex items-start justify-center">
                         <Card

@@ -62,21 +62,21 @@ const categories: Category[] = [
         id: "1",
         logo: "/block_logos/MSFT.png",
         label: "MSFT",
-        price: msftPrice,
+        price: "375.00",
         category: "Stocks",
       },
       {
         id: "2",
         logo: "/block_logos/apple.png",
         label: "AAPL",
-        price: aaplPrice,
+        price: "185.00",
         category: "Stocks",
       },
       {
         id: "3",
         logo: "/block_logos/nvidia.png",
         label: "NVDA",
-        price: nvdaPrice,
+        price: "495.00",
         category: "Stocks",
       },
     ],
@@ -129,8 +129,8 @@ export function BlockPanel({ onAddBlock }: BlockPanelProps) {
   //   {
   //     id: "1",
   return (
-    <div className="p-4 bg-white">
-      <h3 className="mb-4 text-xl font-semibold">Available Assets</h3>
+    <div className="p-4 bg-white space-y-4">
+      <h3 className="mb-2 text-xl font-normal">Available Assets</h3>
       {categories.map((category) => (
         <div key={category.name} className="space-y-2">
           <div className="flex items-center mb-2 mt-2">

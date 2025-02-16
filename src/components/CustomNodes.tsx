@@ -6,6 +6,9 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import Image from 'next/image'
+import { ScrambleHover } from '@/components/ScrambleHover'
+import React from 'react'
 
 const mockPrices = {
   AAPL: "150.23",
@@ -130,4 +133,39 @@ export function BrainNode({ data }: { data: { text: string } }) {
     </motion.div>
   )
 }
+
+interface CustomNodeData {
+    label: string;
+    logo: string;
+    price: string;
+}
+
+interface CustomNodeProps {
+    data: CustomNodeData;
+}
+
+export const CustomNode: React.FC<CustomNodeProps> = ({ data }) => {
+    return (
+        <div className="px-4 py-2 shadow-md rounded-md bg-white border border-gray-200">
+            <Handle type="target" position={Position.Top} className="w-16 !bg-gray-500" />
+            
+            <div className="flex items-center">
+                <div className="rounded-full w-12 h-12 flex items-center justify-center">
+                    <Image
+                        src={data.logo}
+                        alt={data.label}
+                        width={30}
+                        height={30}
+                    />
+                </div>
+                <div className="ml-2">
+                    <div className="text-lg font-bold">{data.label}</div>
+                    <div className="text-gray-500">${data.price}</div>
+                </div>
+            </div>
+            
+            <Handle type="source" position={Position.Bottom} className="w-16 !bg-gray-500" />
+        </div>
+    );
+};
 

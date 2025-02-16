@@ -34,6 +34,7 @@ import AILoadingAnimation from "@/components/ai-loading-animation";
 import { toast } from "sonner";
 // import { createTask } from "@/server/createTask";
 import { cn } from "@/lib/utils";
+import { CustomNode } from '@/components/CustomNodes';
 
 interface ScrambleHoverProps {
     text: string;
@@ -283,11 +284,19 @@ export default function Home() {
         });
     }, []);
 
-    const handleAddBlock = useCallback((block: { id: string; label: string }) => {
+    const handleAddBlock = useCallback((block: { id: string; label: string; logo: string; price: string }) => {
         const newNode = {
             id: Date.now().toString(),
-            data: { label: block.label },
-            position: { x: 250, y: 250 }
+            type: 'customNode',
+            data: { 
+                label: block.label,
+                logo: block.logo,
+                price: block.price
+            },
+            position: { 
+                x: Math.random() * 400, 
+                y: Math.random() * 400 
+            }
         };
         setNodes((nds) => [...nds, newNode]);
     }, [setNodes]);
@@ -430,6 +439,11 @@ export default function Home() {
         toast.success("Flow cleared successfully!");
     }, [setNodes, setEdges]);
 
+    // Add nodeTypes configuration
+    const nodeTypes = {
+        customNode: CustomNode,
+    };
+
     return (
         <div className="flex w-full h-screen pt-14">
             {/* Left Sidebar */}
@@ -540,6 +554,7 @@ export default function Home() {
                             edges={edges}
                             onNodesChange={onNodesChange}
                             onEdgesChange={onEdgesChange}
+                            nodeTypes={nodeTypes}
                             fitView
                         >
                             <Controls />

@@ -24,7 +24,8 @@ import {
     Play,
     ChevronLeft,
     ChevronRight,
-    Loader2
+    Loader2,
+    Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -35,192 +36,192 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface ScrambleHoverProps {
-  text: string;
-  scrambleSpeed?: number;
-  maxIterations?: number;
-  sequential?: boolean;
-  revealDirection?: "start" | "end" | "center";
-  useOriginalCharsOnly?: boolean;
-  characters?: string;
-  className?: string;
-  scrambledClassName?: string;
+    text: string;
+    scrambleSpeed?: number;
+    maxIterations?: number;
+    sequential?: boolean;
+    revealDirection?: "start" | "end" | "center";
+    useOriginalCharsOnly?: boolean;
+    characters?: string;
+    className?: string;
+    scrambledClassName?: string;
 }
 
 const ScrambleHover: React.FC<ScrambleHoverProps> = ({
-  text,
-  scrambleSpeed = 50,
-  maxIterations = 10,
-  useOriginalCharsOnly = false,
-  characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+",
-  className,
-  scrambledClassName,
-  sequential = false,
-  revealDirection = "start",
-  ...props
-}) => {
-  const [displayText, setDisplayText] = useState(text);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isScrambling, setIsScrambling] = useState(false);
-  const [revealedIndices, setRevealedIndices] = useState(new Set<number>());
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    let currentIteration = 0;
-
-    const getNextIndex = () => {
-      const textLength = text.length;
-      switch (revealDirection) {
-        case "start":
-          return revealedIndices.size;
-        case "end":
-          return textLength - 1 - revealedIndices.size;
-        case "center":
-          const middle = Math.floor(textLength / 2);
-          const offset = Math.floor(revealedIndices.size / 2);
-          const nextIndex =
-            revealedIndices.size % 2 === 0
-              ? middle + offset
-              : middle - offset - 1;
-
-          if (
-            nextIndex >= 0 &&
-            nextIndex < textLength &&
-            !revealedIndices.has(nextIndex)
-          ) {
-            return nextIndex;
-          }
-
-          for (let i = 0; i < textLength; i++) {
-            if (!revealedIndices.has(i)) return i;
-          }
-          return 0;
-        default:
-          return revealedIndices.size;
-      }
-    };
-
-    const shuffleText = (text: string) => {
-      if (useOriginalCharsOnly) {
-        const positions = text.split("").map((char, i) => ({
-          char,
-          isSpace: char === " ",
-          index: i,
-          isRevealed: revealedIndices.has(i),
-        }));
-
-        const nonSpaceChars = positions
-          .filter((p) => !p.isSpace && !p.isRevealed)
-          .map((p) => p.char);
-
-        // Shuffle the remaining non-revealed, non-space characters
-        for (let i = nonSpaceChars.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [nonSpaceChars[i], nonSpaceChars[j]] = [
-            nonSpaceChars[j],
-            nonSpaceChars[i],
-          ];
-        }
-
-        let charIndex = 0;
-        return positions
-          .map((p) => {
-            if (p.isSpace) return " ";
-            if (p.isRevealed) return text[p.index];
-            return nonSpaceChars[charIndex++];
-          })
-          .join("");
-      } else {
-        const availableChars = useOriginalCharsOnly
-          ? Array.from(new Set(text.split(""))).filter((char) => char !== " ")
-          : characters.split("");
-        return text
-          .split("")
-          .map((char, i) => {
-            if (char === " ") return " ";
-            if (revealedIndices.has(i)) return text[i];
-            return availableChars[
-              Math.floor(Math.random() * availableChars.length)
-            ];
-          })
-          .join("");
-      }
-    };
-
-    if (isHovering) {
-      setIsScrambling(true);
-      interval = setInterval(() => {
-        if (sequential) {
-          if (revealedIndices.size < text.length) {
-            const nextIndex = getNextIndex();
-            setRevealedIndices((prev) => new Set(prev).add(nextIndex));
-            setDisplayText(shuffleText(text));
-          } else {
-            clearInterval(interval);
-            setIsScrambling(false);
-          }
-        } else {
-          setDisplayText(shuffleText(text));
-          currentIteration++;
-          if (currentIteration >= maxIterations) {
-            clearInterval(interval);
-            setIsScrambling(false);
-            setDisplayText(text);
-          }
-        }
-      }, scrambleSpeed);
-    } else {
-      setDisplayText(text);
-      setRevealedIndices(new Set());
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [
-    isHovering,
     text,
-    characters,
-    scrambleSpeed,
-    useOriginalCharsOnly,
-    sequential,
-    revealDirection,
-    maxIterations,
-    revealedIndices,
-  ]);
+    scrambleSpeed = 50,
+    maxIterations = 10,
+    useOriginalCharsOnly = false,
+    characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+",
+    className,
+    scrambledClassName,
+    sequential = false,
+    revealDirection = "start",
+    ...props
+}) => {
+    const [displayText, setDisplayText] = useState(text);
+    const [isHovering, setIsHovering] = useState(false);
+    const [isScrambling, setIsScrambling] = useState(false);
+    const [revealedIndices, setRevealedIndices] = useState(new Set<number>());
 
-  // When the text value changes, auto-trigger the scramble effect.
-  useEffect(() => {
-    setIsHovering(true);
-    const timeout = setTimeout(() => {
-      setIsHovering(false);
-    }, scrambleSpeed * maxIterations);
-    return () => clearTimeout(timeout);
-  }, [text, scrambleSpeed, maxIterations]);
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        let currentIteration = 0;
 
-  return (
-    <motion.span
-      onHoverStart={() => setIsHovering(true)}
-      onHoverEnd={() => setIsHovering(false)}
-      className={cn("inline-block whitespace-pre-wrap", className)}
-      {...props}
-    >
-      <span className="sr-only">{displayText}</span>
-      <span aria-hidden="true">
-        {displayText.split("").map((char, index) => (
-          <span
-            key={index}
-            className={cn(
-              revealedIndices.has(index) || !isScrambling || !isHovering
-                ? className
-                : scrambledClassName
-            )}
-          >
-            {char}
-          </span>
-        ))}
-      </span>
-    </motion.span>
-  );
+        const getNextIndex = () => {
+            const textLength = text.length;
+            switch (revealDirection) {
+                case "start":
+                    return revealedIndices.size;
+                case "end":
+                    return textLength - 1 - revealedIndices.size;
+                case "center":
+                    const middle = Math.floor(textLength / 2);
+                    const offset = Math.floor(revealedIndices.size / 2);
+                    const nextIndex =
+                        revealedIndices.size % 2 === 0
+                            ? middle + offset
+                            : middle - offset - 1;
+
+                    if (
+                        nextIndex >= 0 &&
+                        nextIndex < textLength &&
+                        !revealedIndices.has(nextIndex)
+                    ) {
+                        return nextIndex;
+                    }
+
+                    for (let i = 0; i < textLength; i++) {
+                        if (!revealedIndices.has(i)) return i;
+                    }
+                    return 0;
+                default:
+                    return revealedIndices.size;
+            }
+        };
+
+        const shuffleText = (text: string) => {
+            if (useOriginalCharsOnly) {
+                const positions = text.split("").map((char, i) => ({
+                    char,
+                    isSpace: char === " ",
+                    index: i,
+                    isRevealed: revealedIndices.has(i),
+                }));
+
+                const nonSpaceChars = positions
+                    .filter((p) => !p.isSpace && !p.isRevealed)
+                    .map((p) => p.char);
+
+                // Shuffle the remaining non-revealed, non-space characters
+                for (let i = nonSpaceChars.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [nonSpaceChars[i], nonSpaceChars[j]] = [
+                        nonSpaceChars[j],
+                        nonSpaceChars[i],
+                    ];
+                }
+
+                let charIndex = 0;
+                return positions
+                    .map((p) => {
+                        if (p.isSpace) return " ";
+                        if (p.isRevealed) return text[p.index];
+                        return nonSpaceChars[charIndex++];
+                    })
+                    .join("");
+            } else {
+                const availableChars = useOriginalCharsOnly
+                    ? Array.from(new Set(text.split(""))).filter((char) => char !== " ")
+                    : characters.split("");
+                return text
+                    .split("")
+                    .map((char, i) => {
+                        if (char === " ") return " ";
+                        if (revealedIndices.has(i)) return text[i];
+                        return availableChars[
+                            Math.floor(Math.random() * availableChars.length)
+                        ];
+                    })
+                    .join("");
+            }
+        };
+
+        if (isHovering) {
+            setIsScrambling(true);
+            interval = setInterval(() => {
+                if (sequential) {
+                    if (revealedIndices.size < text.length) {
+                        const nextIndex = getNextIndex();
+                        setRevealedIndices((prev) => new Set(prev).add(nextIndex));
+                        setDisplayText(shuffleText(text));
+                    } else {
+                        clearInterval(interval);
+                        setIsScrambling(false);
+                    }
+                } else {
+                    setDisplayText(shuffleText(text));
+                    currentIteration++;
+                    if (currentIteration >= maxIterations) {
+                        clearInterval(interval);
+                        setIsScrambling(false);
+                        setDisplayText(text);
+                    }
+                }
+            }, scrambleSpeed);
+        } else {
+            setDisplayText(text);
+            setRevealedIndices(new Set());
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [
+        isHovering,
+        text,
+        characters,
+        scrambleSpeed,
+        useOriginalCharsOnly,
+        sequential,
+        revealDirection,
+        maxIterations,
+        revealedIndices,
+    ]);
+
+    // When the text value changes, auto-trigger the scramble effect.
+    useEffect(() => {
+        setIsHovering(true);
+        const timeout = setTimeout(() => {
+            setIsHovering(false);
+        }, scrambleSpeed * maxIterations);
+        return () => clearTimeout(timeout);
+    }, [text, scrambleSpeed, maxIterations]);
+
+    return (
+        <motion.span
+            onHoverStart={() => setIsHovering(true)}
+            onHoverEnd={() => setIsHovering(false)}
+            className={cn("inline-block whitespace-pre-wrap", className)}
+            {...props}
+        >
+            <span className="sr-only">{displayText}</span>
+            <span aria-hidden="true">
+                {displayText.split("").map((char, index) => (
+                    <span
+                        key={index}
+                        className={cn(
+                            revealedIndices.has(index) || !isScrambling || !isHovering
+                                ? className
+                                : scrambledClassName
+                        )}
+                    >
+                        {char}
+                    </span>
+                ))}
+            </span>
+        </motion.span>
+    );
 };
 
 
@@ -263,15 +264,15 @@ export default function Home() {
             name: flowName,
             lastModified: new Date().toISOString()
         };
-        
+
         // Save to current flow
         localStorage.setItem('currentFlow', JSON.stringify(flowData));
-        
+
         // Save to flow history
         const flowHistory = JSON.parse(localStorage.getItem('flowHistory') || '[]');
         flowHistory.push(flowData);
         localStorage.setItem('flowHistory', JSON.stringify(flowHistory));
-        
+
         toast.success('Flow saved successfully!');
     }, [nodes, edges, flowName]);
 
@@ -367,7 +368,7 @@ export default function Home() {
                 }
             ];
 
-// test
+            // test
 
             const response = await fetch('/api/agent/compile', {
                 method: 'POST',
@@ -420,6 +421,13 @@ export default function Home() {
         } finally {
             setIsCompiling(false);
         }
+    }, [setNodes, setEdges]);
+
+    // --- New: Clear Flow functionality ---
+    const clearFlow = useCallback(() => {
+        setNodes([]);
+        setEdges([]);
+        toast.success("Flow cleared successfully!");
     }, [setNodes, setEdges]);
 
     return (
@@ -497,12 +505,13 @@ export default function Home() {
                     )}
                 </div>
                 {/* handleClickJson ts */}
-                
+
                 {/* Resize Handle */}
                 <ResizeHandle onResize={handleResize} />
 
                 {/* React Flow Canvas */}
                 <div style={{ width: `${100 - chatWidth}%` }} className="relative">
+                    {/* Compile Strategy Button */}
                     <Button
                         onClick={handleCompileStrategy}
                         className="absolute top-4 right-4 z-10"
@@ -511,6 +520,20 @@ export default function Home() {
                         {isCompiling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {isCompiling ? 'Compiling...' : 'Compile Strategy'}
                     </Button>
+
+                    {/* Clear Flow Button */}
+                    <motion.div
+                        className="absolute top-4 left-4 z-10"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        <Button variant="ghost" onClick={clearFlow}>
+                            <Trash2 className="h-4 w-4" />
+                            Clear Flow
+                        </Button>
+                    </motion.div>
+
                     <ReactFlowProvider>
                         <ReactFlow
                             nodes={nodes}
@@ -520,6 +543,7 @@ export default function Home() {
                             fitView
                         >
                             <Controls />
+                            <MiniMap />
                             <Background gap={12} size={1} />
                         </ReactFlow>
                     </ReactFlowProvider>

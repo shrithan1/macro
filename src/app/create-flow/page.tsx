@@ -35,6 +35,11 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { motion, AnimatePresence } from "framer-motion";
 import AILoadingAnimation from "@/components/ai-loading-animation";
 
+// Import Sonner toast
+import { toast } from "sonner";
+// Import createTask (ensure the import path is correct)
+import { createTask } from "@/server/createTask";
+
 export default function Home() {
     // Maintain nodes/edges state for React Flow.
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -168,9 +173,13 @@ export default function Home() {
 
             setNodes(newNodes);
             setEdges(newEdges);
-        } catch (error) {
+
+            // Call createTask with the compiled JSON object
+            const taskResult = await createTask(JSON.stringify(compiledData));
+            toast.success(`Task created successfully with transaction hash: ${taskResult.transactionHash}`);
+        } catch (error: any) {
             console.error('Error compiling strategy:', error);
-            alert('Error compiling strategy. Check console for details.');
+            toast.error('Error compiling strategy. Check console for details.');
         } finally {
             setIsCompiling(false);
         }

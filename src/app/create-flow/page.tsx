@@ -175,7 +175,22 @@ export default function Home() {
             setEdges(newEdges);
 
             // Call createTask with the compiled JSON object
-            const taskResult = await createTask(JSON.stringify(compiledData));
+            // const taskResult = await createTask(JSON.stringify(compiledData));
+
+            // Call the API route instead of createTask directly
+            const taskResponse = await fetch('/api/create-task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ taskData: JSON.stringify(compiledData) })
+            });
+
+            if (!taskResponse.ok) {
+                throw new Error('Failed to create task');
+            }
+
+            const taskResult = await taskResponse.json();
             toast.success(`Task created successfully with transaction hash: ${taskResult.transactionHash}`);
         } catch (error: any) {
             console.error('Error compiling strategy:', error);

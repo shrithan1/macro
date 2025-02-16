@@ -4,7 +4,7 @@ import React from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from 'react-markdown';
-import { Plus, TelescopeIcon as Binoculars, AudioWaveformIcon as WaveformIcon, PlayIcon } from "lucide-react"
+import { Plus, TelescopeIcon as Binoculars, AudioWaveformIcon as WaveformIcon, PlayIcon, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useState, useRef, useEffect } from "react"
@@ -23,6 +23,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const cardRef = useRef<HTMLDivElement>(null)
+    const [isCompiling, setIsCompiling] = useState(false);
 
     // Adjust textarea height on input change
     useEffect(() => {
@@ -104,6 +105,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
             return;
         }
     
+        setIsCompiling(true);
         try {
             const response = await fetch('/api/agent/compile', {
                 method: 'POST',
@@ -119,6 +121,8 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
         } catch (error) {
             console.error("Error compiling strategy:", error);
             alert("Error compiling strategy. Check console for details.");
+        } finally {
+            setIsCompiling(false);
         }
     };
 
@@ -170,8 +174,10 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                     variant="outline"
                     className="absolute -top-8 right-4"
                     onClick={handleCompileStrategy}
+                    disabled={isCompiling}
                 >
-                    Compile Strategy
+                    {isCompiling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isCompiling ? 'Compiling...' : 'Compile Strategy'}
                 </Button>
 
                 <TooltipProvider>

@@ -27,7 +27,8 @@ import {
     Save,
     Play,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -41,6 +42,7 @@ export default function Home() {
     const [isBlockPanelOpen, setIsBlockPanelOpen] = useState(true);
     const [chatWidth, setChatWidth] = useState(50); // percentage
     const [isLoading, setIsLoading] = useState(false);
+    const [isCompiling, setIsCompiling] = useState(false);
 
     const handleResize = useCallback((delta: number) => {
         setChatWidth((prev) => {
@@ -126,15 +128,17 @@ export default function Home() {
     };
 
     const handleCompileStrategy = useCallback(async () => {
-
-        // In a real app you might pass conversation data from ChatSection.
-        const dummyMessages = [
-            {
-                role: "user",
-                content: "Generate a trading strategy with a start-block, a couple S and P stocks blocks , and a yield-block at the end."
-            }
-        ];
+        setIsCompiling(true);
         try {
+            const dummyMessages = [
+                {
+                    role: "user",
+                    content: "Generate a trading strategy with a start-block, a couple S and P stocks blocks , and a yield-block at the end."
+                }
+            ];
+
+            
+            
             const response = await fetch('/api/agent/compile', {
                 method: 'POST',
                 headers: {
@@ -148,18 +152,13 @@ export default function Home() {
             }
 
             const compiledData = await response.json();
-            // The expected structured JSON should have the keys: blocks, connections, metadata.
-            // Convert each block into a React Flow node.
             const newNodes = compiledData.blocks.map((block: any) => ({
                 id: block.id,
                 position: block.position,
-                // Here you can map block type to a custom node type if needed.
-                // For simplicity we are using the default type.
                 type: "default",
                 data: { label: block.type, config: block.config }
             }));
 
-            // Convert each connection into a React Flow edge.
             const newEdges = compiledData.connections.map((conn: any) => ({
                 id: `edge-${conn.from}-${conn.to}`,
                 source: conn.from,
@@ -167,12 +166,13 @@ export default function Home() {
                 type: "default"
             }));
 
-            // Update the React Flow canvas with the new nodes and edges.
             setNodes(newNodes);
             setEdges(newEdges);
         } catch (error) {
             console.error('Error compiling strategy:', error);
             alert('Error compiling strategy. Check console for details.');
+        } finally {
+            setIsCompiling(false);
         }
     }, [setNodes, setEdges]);
 
@@ -260,8 +260,13 @@ export default function Home() {
 
                 {/* React Flow Canvas */}
                 <div style={{ width: `${100 - chatWidth}%` }} className="relative">
-                    <Button onClick={handleCompileStrategy} className="absolute top-4 right-4 z-10">
-                        Compile Strategy
+                    <Button 
+                        onClick={handleCompileStrategy} 
+                        className="absolute top-4 right-4 z-10"
+                        disabled={isCompiling}
+                    >
+                        {isCompiling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isCompiling ? 'Compiling...' : 'Compile Strategy'}
                     </Button>
                     <ReactFlowProvider>
                         <ReactFlow

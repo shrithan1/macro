@@ -8,6 +8,7 @@ import { Plus, TelescopeIcon as Binoculars, AudioWaveformIcon as WaveformIcon, P
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useState, useRef, useEffect } from "react"
+import { SearchProgress } from "@/components/SearchProgress";
 
 interface ChatSectionProps {
     WordWrapper: React.ComponentType<any>;
@@ -19,6 +20,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [currentQuery, setCurrentQuery] = useState<string>('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const [isCompiling, setIsCompiling] = useState(false);
@@ -41,6 +43,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
 
         setMessages(prev => [...prev, { role: 'user', content: input, id: Date.now() }]);
         setIsLoading(true);
+        setCurrentQuery(input.trim());
         const currentInput = input;
         setInput('');
 
@@ -81,6 +84,7 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
             }]);
         } finally {
             setIsLoading(false);
+            setCurrentQuery('');
         }
     };
 
@@ -210,6 +214,9 @@ export function ChatSection({ WordWrapper, wordWrapperProps = {} }: ChatSectionP
                             <div className="h-4 w-1/2 bg-muted rounded"></div>
                         </div> */}
                     </div>
+                )}
+                {isLoading && currentQuery && (
+                    <SearchProgress query={currentQuery} />
                 )}
             </div>
 
